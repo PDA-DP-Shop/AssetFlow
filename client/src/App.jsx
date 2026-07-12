@@ -82,8 +82,8 @@ export default function App() {
       <header className="sticky top-0 z-50 bg-white border-b border-violet-100 px-6 py-3.5 flex items-center justify-between shadow-sm">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-md shadow-violet-200">
-            <Layers className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shadow-md shadow-violet-200 bg-white">
+            <img src="/logo.png" alt="AssetFlow Logo" className="w-full h-full object-cover" />
           </div>
           <div>
             <h1 className="text-lg font-bold tracking-tight text-violet-900 font-display">AssetFlow</h1>

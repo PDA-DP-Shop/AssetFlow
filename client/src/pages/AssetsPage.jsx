@@ -156,7 +156,7 @@ function RegisterAssetModal({ onClose, onRegistered }) {
               </select>
             </div>
             <div className="col-span-2 space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Acquisition Cost ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Acquisition Cost (₹)</label>
               <input type="number" value={form.acquisition_cost} onChange={e => set('acquisition_cost', e.target.value)} placeholder="0.00" min="0" step="0.01" className={fieldCls} />
             </div>
             <div className="col-span-2 flex items-center gap-2.5">
@@ -284,7 +284,7 @@ function AssetDetailModal({ assetId, onClose }) {
             </div>
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">Cost</span>
-              <p className="text-xs font-semibold text-violet-900 mt-0.5">{asset.acquisition_cost ? `$${asset.acquisition_cost}` : '—'}</p>
+              <p className="text-xs font-semibold text-violet-900 mt-0.5">{asset.acquisition_cost ? `₹${asset.acquisition_cost}` : '—'}</p>
             </div>
             <div>
               <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">Bookable</span>
@@ -370,7 +370,7 @@ function AssetDetailModal({ assetId, onClose }) {
                         <div>
                           <p className="font-semibold text-violet-950">{item.description}</p>
                           <p className="text-[10px] text-slate-400 mt-0.5">Reported by: {item.reported_by_name || 'System'}</p>
-                          {item.cost && <p className="text-[10px] font-bold text-violet-600 mt-1">Repair Cost: ${item.cost}</p>}
+                          {item.cost && <p className="text-[10px] font-bold text-violet-600 mt-1">Repair Cost: ₹{item.cost}</p>}
                         </div>
                         <div className="text-right space-y-1">
                           <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider

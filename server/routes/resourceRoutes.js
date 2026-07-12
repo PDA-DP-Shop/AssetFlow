@@ -6,7 +6,7 @@ const router  = express.Router();
 router.get('/', async (req, res) => {
   try {
     const result = await db.query(
-      `SELECT id, name, type, location, capacity, is_active
+      `SELECT id, name, type, location, capacity
        FROM resources
        ORDER BY name ASC`
     );

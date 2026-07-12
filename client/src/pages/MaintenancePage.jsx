@@ -6,6 +6,11 @@ import { useAuth } from '../context/AuthContext';
 
 const COLUMNS = ['Pending', 'Approved', 'Technician Assigned', 'In Progress', 'Resolved'];
 
+const normalizeStatus = (status) => {
+  if (!status) return '';
+  return status.toLowerCase().replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+};
+
 const PRIORITY_COLORS = {
   'low':      'bg-slate-100 text-slate-700 border-slate-200',
   'medium':   'bg-amber-50 text-amber-700 border-amber-250',
@@ -138,7 +143,7 @@ export default function MaintenancePage() {
       {/* ── Kanban Grid Board ── */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start flex-1 overflow-x-auto min-h-[500px]">
         {COLUMNS.map(column => {
-          const columnRequests = requests.filter(r => r.status === column);
+          const columnRequests = requests.filter(r => normalizeStatus(r.status) === normalizeStatus(column));
 
           return (
             <div
