@@ -451,7 +451,7 @@ export default function AuditsPage() {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
                         {getStatusPill(item.status)}
-                        {cycleDetails?.status === 'Open' && (
+                        {cycleDetails?.status === 'Open' && isPrivileged && (
                           <CustomSelect
                             value={item.status}
                             onChange={e => handleStatusSelect(item, e.target.value)}

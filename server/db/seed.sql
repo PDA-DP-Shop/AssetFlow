@@ -2,7 +2,7 @@
 
 -- 1. Departments
 INSERT INTO departments (name, code, manager) VALUES
-('Engineering', 'ENG', 'Rudra Modi'),
+('Engineering', 'ENG', 'Udit Rana'),
 ('IT Operations', 'IT', 'Rajesh Patel'),
 ('Marketing', 'MKT', 'Priya Nair'),
 ('Sales', 'SLS', 'Udit Rana'),
@@ -21,8 +21,8 @@ ON CONFLICT (name) DO NOTHING;
 -- 3. Users (Password: AssetFlow@2026)
 INSERT INTO users (name, email, password_hash, role, department_id) VALUES
 ('Devansh Patel',   'devansh@assetflow.com',  '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Admin',    2),
-('Rajesh Patel',    'rajesh@assetflow.com',   '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Auditor',  2),
-('Rudra Modi',      'rudra@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  1),
+('Rajesh Patel',    'rajesh@assetflow.com',   '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 2),
+('Rudra Modi',      'rudra@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Auditor',  1),
 ('Meet Prajapati',  'meet@assetflow.com',     '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 1),
 ('Udit Rana',       'udit@assetflow.com',     '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  4)
 ON CONFLICT (email) DO NOTHING;
@@ -78,15 +78,14 @@ ON CONFLICT (name) DO NOTHING;
 
 -- 11. Audit Items
 INSERT INTO audit_items (audit_cycle_id, asset_id, expected_location, status, verified_by, verified_at, notes) VALUES
-(1, 1, 'Bengaluru Office Floor 4', 'Verified',  2, CURRENT_TIMESTAMP,                       'Physically inspected. In excellent condition.'),
+(1, 1, 'Bengaluru Office Floor 4', 'Verified',  3, CURRENT_TIMESTAMP,                       'Physically inspected. In excellent condition.'),
 (1, 2, 'Bengaluru Office Floor 4', 'Pending',   NULL, NULL,                                 NULL),
-(1, 3, 'Mumbai Data Center',       'Damaged',   2, CURRENT_TIMESTAMP - INTERVAL '1 day',    'Requires port replacement.')
+(1, 3, 'Mumbai Data Center',       'Damaged',   3, CURRENT_TIMESTAMP - INTERVAL '1 day',    'Requires port replacement.')
 ON CONFLICT DO NOTHING;
 
 -- 11a. Audit Auditors
 INSERT INTO audit_auditors (audit_cycle_id, user_id) VALUES
-(1, 2),   -- Rajesh Patel assigned to Q3 Hardware Audit
-(1, 3)    -- Rudra Modi (manager) also assigned
+(1, 3)    -- Rudra Modi (auditor) assigned to Q3 Hardware Audit
 ON CONFLICT DO NOTHING;
 
 -- 12. Activity Log
