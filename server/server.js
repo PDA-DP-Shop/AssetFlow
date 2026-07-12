@@ -19,6 +19,8 @@ const departmentRoutes = require('./routes/departmentRoutes');
 const allocationRoutes = require('./routes/allocationRoutes');
 const maintenanceRoutes = require('./routes/maintenanceRoutes');
 const reportRoutes = require('./routes/reportRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const employeeRoutes = require('./routes/employeeRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -59,10 +61,12 @@ app.use('/api/assets',    assetRoutes);
 app.use('/api/bookings',  bookingRoutes);
 app.use('/api/resources',   resourceRoutes);
 app.use('/api/dashboard',   dashboardRoutes);
-app.use('/api/departments', departmentRoutes);
+app.use('/api/departments',          departmentRoutes);
 app.use('/api/allocations',          allocationRoutes);
 app.use('/api/maintenance-requests', maintenanceRoutes);
 app.use('/api/reports',              reportRoutes);
+app.use('/api/categories',           categoryRoutes);
+app.use('/api/employees',            employeeRoutes);
 app.use('/api',                      auditRoutes);
 
 app.get('/api/health', async (req, res) => {
