@@ -2,11 +2,11 @@
 
 -- 1. Departments
 INSERT INTO departments (name, code, manager) VALUES
-('Engineering', 'ENG', 'Alice Vance'),
-('IT Operations', 'IT', 'Bob Smith'),
-('Marketing', 'MKT', 'Charlotte Webb'),
-('Sales', 'SLS', 'David Miller'),
-('Human Resources', 'HR', 'Emma Watson')
+('Engineering', 'ENG', 'Ananya Iyer'),
+('IT Operations', 'IT', 'Rajesh Patel'),
+('Marketing', 'MKT', 'Priya Nair'),
+('Sales', 'SLS', 'Vikram Rao'),
+('Human Resources', 'HR', 'Neha Kapoor')
 ON CONFLICT (name) DO NOTHING;
 
 -- 2. Categories
@@ -20,28 +20,28 @@ ON CONFLICT (name) DO NOTHING;
 
 -- 3. Users (Password: AssetFlow@2026)
 INSERT INTO users (name, email, password_hash, role, department_id) VALUES
-('AssetFlow Administrator', 'admin@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Admin',    2),
-('John Auditor',            'auditor@assetflow.com',  '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Auditor',  2),
-('Alice Vance',             'alice@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  1),
-('Emily Employee',          'emily@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 1),
-('David Miller',            'david@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  4)
+('Aarav Sharma',    'admin@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Admin',    2),
+('Rajesh Patel',    'auditor@assetflow.com',  '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Auditor',  2),
+('Ananya Iyer',     'alice@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  1),
+('Diya Sen',        'emily@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 1),
+('Vikram Rao',      'david@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  4)
 ON CONFLICT (email) DO NOTHING;
 
 -- 4. Assets
 INSERT INTO assets (name, serial_number, category_id, department_id, status, acquisition_date, acquisition_cost, condition, location, is_bookable) VALUES
-('MacBook Pro 16" M3 Max', 'SN-M3MAX-88219', 1, 1, 'Allocated', '2026-01-10', 3499.00, 'Excellent', 'Main Office Floor 2', false),
-('Dell UltraSharp 32" 4K Monitor', 'SN-DELL4K-00293', 2, 1, 'Available', '2026-02-15', 899.00, 'Good', 'Main Office Floor 2', false),
-('Cisco Catalyst 9300 Switch', 'SN-CISCO-9300X', 3, 2, 'Under Maintenance', '2025-11-20', 4500.00, 'Requires Service', 'Server Room A', false),
-('iPad Pro 12.9" Cellular', 'SN-IPADPRO-90082', 5, 4, 'Allocated', '2026-03-01', 1299.00, 'Excellent', 'Sales Floor 1', true),
-('Herman Miller Aeron Chair', 'SN-AERON-55610', 4, 5, 'Allocated', '2024-06-18', 1450.00, 'Good', 'HR Department', false),
-('Testbench iPhone 15 Pro', 'SN-IPHONE15-2234', 5, 1, 'Available', '2025-10-05', 999.00, 'Fair', 'Mobile Test Lab', true),
-('Lenovo ThinkPad X1 Carbon', 'SN-THINKPAD-00382', 1, 1, 'Allocated', '2025-05-10', 1800.00, 'Good', 'Main Office Floor 2', false)
+('MacBook Pro 16" M3 Max', 'SN-M3MAX-88219', 1, 1, 'Allocated', '2026-01-10', 3499.00, 'Excellent', 'Bengaluru Office Floor 4', false),
+('Dell UltraSharp 32" 4K Monitor', 'SN-DELL4K-00293', 2, 1, 'Available', '2026-02-15', 899.00, 'Good', 'Bengaluru Office Floor 4', false),
+('Cisco Catalyst 9300 Switch', 'SN-CISCO-9300X', 3, 2, 'Under Maintenance', '2025-11-20', 4500.00, 'Requires Service', 'Mumbai Data Center', false),
+('iPad Pro 12.9" Cellular', 'SN-IPADPRO-90082', 5, 4, 'Allocated', '2026-03-01', 1299.00, 'Excellent', 'Delhi Sales Office', true),
+('Herman Miller Aeron Chair', 'SN-AERON-55610', 4, 5, 'Allocated', '2024-06-18', 1450.00, 'Good', 'Pune HR Hub', false),
+('Testbench iPhone 15 Pro', 'SN-IPHONE15-2234', 5, 1, 'Available', '2025-10-05', 999.00, 'Fair', 'Chennai Testing Hub', true),
+('Lenovo ThinkPad X1 Carbon', 'SN-THINKPAD-00382', 1, 1, 'Allocated', '2025-05-10', 1800.00, 'Good', 'Bengaluru Office Floor 4', false)
 ON CONFLICT (serial_number) DO NOTHING;
 
 -- 5. Allocations
 INSERT INTO allocations (asset_id, user_id, notes, expected_return_date, status) VALUES
-(1, 4, 'Assigned to Emily for software engineering work.', NULL, 'active'),
-(4, 5, 'Assigned to David for field client presentations.', NULL, 'active'),
+(1, 4, 'Assigned to Diya for software engineering work.', NULL, 'active'),
+(4, 5, 'Assigned to Vikram for field client presentations.', NULL, 'active'),
 (5, 1, 'Standard admin desk configuration.', NULL, 'active'),
 (7, 4, 'Standard issue work laptop (overdue check showcase).', '2026-06-01', 'active')
 ON CONFLICT DO NOTHING;
@@ -49,14 +49,14 @@ ON CONFLICT DO NOTHING;
 -- 6. Transfers
 INSERT INTO transfers (asset_id, from_department_id, to_department_id, from_user_id, to_user_id, reason, status) VALUES
 (1, 2, 1, 2, 4, 'Initial departmental migration', 'approved'),
-(4, 4, 1, 5, 4, 'Emily needs iPad Pro for testing layout designs in Safari.', 'pending')
+(4, 4, 1, 5, 4, 'Diya needs iPad Pro for testing layout designs in Safari.', 'pending')
 ON CONFLICT DO NOTHING;
 
 -- 7. Resources
 INSERT INTO resources (name, type, location, capacity) VALUES
-('Conference Room Alpha', 'conference_room', 'HQ Building A, Floor 3', 16),
-('Staging Rack 3B', 'server_rack', 'Server Room A', 10),
-('iOS Testing Kit 1', 'testing_device', 'Mobile Test Lab', 1)
+('Narmada Conference Room', 'conference_room', 'Bengaluru HQ, Floor 3', 16),
+('Bengaluru Server Rack 3B', 'server_rack', 'Mumbai Data Center', 10),
+('Chennai iOS Testing Kit 1', 'testing_device', 'Chennai Testing Hub', 1)
 ON CONFLICT DO NOTHING;
 
 -- 8. Bookings
@@ -73,20 +73,20 @@ ON CONFLICT DO NOTHING;
 
 -- 10. Audit Cycles
 INSERT INTO audit_cycles (name, scope_department_id, scope_location, start_date, end_date, status) VALUES
-('Q3 Hardware Audit', 1, 'Main Office Floor 2', '2026-07-01', '2026-07-31', 'Open')
+('Q3 Hardware Audit', 1, 'Bengaluru Office Floor 4', '2026-07-01', '2026-07-31', 'Open')
 ON CONFLICT (name) DO NOTHING;
 
 -- 11. Audit Items
 INSERT INTO audit_items (audit_cycle_id, asset_id, expected_location, status, verified_by, verified_at, notes) VALUES
-(1, 1, 'Main Office Floor 2', 'Verified',  2, CURRENT_TIMESTAMP,                       'Physically inspected. In excellent condition.'),
-(1, 2, 'Main Office Floor 2', 'Pending',   NULL, NULL,                                 NULL),
-(1, 3, 'Server Room A',       'Damaged',   2, CURRENT_TIMESTAMP - INTERVAL '1 day',    'Requires port replacement.')
+(1, 1, 'Bengaluru Office Floor 4', 'Verified',  2, CURRENT_TIMESTAMP,                       'Physically inspected. In excellent condition.'),
+(1, 2, 'Bengaluru Office Floor 4', 'Pending',   NULL, NULL,                                 NULL),
+(1, 3, 'Mumbai Data Center',       'Damaged',   2, CURRENT_TIMESTAMP - INTERVAL '1 day',    'Requires port replacement.')
 ON CONFLICT DO NOTHING;
 
 -- 11a. Audit Auditors
 INSERT INTO audit_auditors (audit_cycle_id, user_id) VALUES
-(1, 2),   -- John Auditor assigned to Q3 Hardware Audit
-(1, 3)    -- Alice Vance (manager) also assigned
+(1, 2),   -- Rajesh Patel assigned to Q3 Hardware Audit
+(1, 3)    -- Ananya Iyer (manager) also assigned
 ON CONFLICT DO NOTHING;
 
 -- 12. Activity Log
