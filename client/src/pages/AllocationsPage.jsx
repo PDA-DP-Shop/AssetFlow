@@ -155,7 +155,7 @@ export default function AllocationsPage() {
     setSuccess('');
 
     // Current active holder — check both active and overdue
-    const activeAlloc = selectedAssetDetails?.allocations?.find(a => a.status === 'active' || a.status === 'overdue');
+    const activeAlloc = (selectedAssetDetails?.allocations || selectedAssetDetails?.allocation_history)?.find(a => a.status === 'active' || a.status === 'overdue');
     const from_user_id = activeAlloc ? activeAlloc.user_id : null; // user_id, NOT the alloc record id
 
     try {
@@ -190,7 +190,7 @@ export default function AllocationsPage() {
   };
 
   // Find the active holder — include overdue allocations too
-  const activeAllocation = selectedAssetDetails?.allocations?.find(
+  const activeAllocation = (selectedAssetDetails?.allocations || selectedAssetDetails?.allocation_history)?.find(
     a => a.status === 'active' || a.status === 'overdue'
   );
   const currentHolderName = activeAllocation ? activeAllocation.user_name : null;
@@ -378,9 +378,9 @@ export default function AllocationsPage() {
               <div className="py-12 flex justify-center">
                 <Loader2 className="w-6 h-6 text-violet-600 animate-spin" />
               </div>
-            ) : selectedAssetDetails?.allocations?.length > 0 ? (
+            ) : (selectedAssetDetails?.allocations || selectedAssetDetails?.allocation_history)?.length > 0 ? (
               <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
-                {selectedAssetDetails.allocations.map((alloc) => (
+                {(selectedAssetDetails.allocations || selectedAssetDetails.allocation_history).map((alloc) => (
                   <div key={alloc.id} className="border-l-2 border-violet-200 pl-4 py-1 relative">
                     <div className="absolute w-2 h-2 rounded-full bg-violet-400 -left-[5px] top-2" />
                     <div className="flex justify-between items-start">
