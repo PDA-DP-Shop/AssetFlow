@@ -40,7 +40,7 @@ export default function App() {
       .catch(() => setDbStatus('Offline'));
 
     setLogs([
-      { id: 1, action: 'ASSET_ALLOCATION',    details: 'MacBook Pro 16" allocated to Aarav Sharma',                 timestamp: '10:14 AM' },
+      { id: 1, action: 'ASSET_ALLOCATION',    details: 'MacBook Pro 16" allocated to Meet Prajapati',                 timestamp: '10:14 AM' },
       { id: 2, action: 'MAINTENANCE_LOG',     details: 'Cisco Router service scheduled: Priority High',             timestamp: '09:45 AM' },
       { id: 3, action: 'DEPARTMENT_TRANSFER', details: 'Herman Miller Chair transferred from HR to Mumbai Hub',     timestamp: 'Yesterday' },
       { id: 4, action: 'AUDIT_VERIFIED',      details: 'Annual Computing Audit Cycle Completed successfully',       timestamp: '2 days ago' },

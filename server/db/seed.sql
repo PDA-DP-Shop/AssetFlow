@@ -2,10 +2,10 @@
 
 -- 1. Departments
 INSERT INTO departments (name, code, manager) VALUES
-('Engineering', 'ENG', 'Ananya Iyer'),
+('Engineering', 'ENG', 'Rudra Modi'),
 ('IT Operations', 'IT', 'Rajesh Patel'),
 ('Marketing', 'MKT', 'Priya Nair'),
-('Sales', 'SLS', 'Vikram Rao'),
+('Sales', 'SLS', 'Udit Rana'),
 ('Human Resources', 'HR', 'Neha Kapoor')
 ON CONFLICT (name) DO NOTHING;
 
@@ -20,11 +20,11 @@ ON CONFLICT (name) DO NOTHING;
 
 -- 3. Users (Password: AssetFlow@2026)
 INSERT INTO users (name, email, password_hash, role, department_id) VALUES
-('Aarav Sharma',    'admin@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Admin',    2),
-('Rajesh Patel',    'auditor@assetflow.com',  '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Auditor',  2),
-('Ananya Iyer',     'alice@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  1),
-('Diya Sen',        'emily@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 1),
-('Vikram Rao',      'david@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  4)
+('Devansh Patel',   'devansh@assetflow.com',  '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Admin',    2),
+('Rajesh Patel',    'rajesh@assetflow.com',   '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Auditor',  2),
+('Rudra Modi',      'rudra@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  1),
+('Meet Prajapati',  'meet@assetflow.com',     '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 1),
+('Udit Rana',       'udit@assetflow.com',     '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  4)
 ON CONFLICT (email) DO NOTHING;
 
 -- 4. Assets
@@ -40,8 +40,8 @@ ON CONFLICT (serial_number) DO NOTHING;
 
 -- 5. Allocations
 INSERT INTO allocations (asset_id, user_id, notes, expected_return_date, status) VALUES
-(1, 4, 'Assigned to Diya for software engineering work.', NULL, 'active'),
-(4, 5, 'Assigned to Vikram for field client presentations.', NULL, 'active'),
+(1, 4, 'Assigned to Meet Prajapati for software engineering work.', NULL, 'active'),
+(4, 5, 'Assigned to Udit Rana for field client presentations.', NULL, 'active'),
 (5, 1, 'Standard admin desk configuration.', NULL, 'active'),
 (7, 4, 'Standard issue work laptop (overdue check showcase).', '2026-06-01', 'active')
 ON CONFLICT DO NOTHING;
@@ -49,7 +49,7 @@ ON CONFLICT DO NOTHING;
 -- 6. Transfers
 INSERT INTO transfers (asset_id, from_department_id, to_department_id, from_user_id, to_user_id, reason, status) VALUES
 (1, 2, 1, 2, 4, 'Initial departmental migration', 'approved'),
-(4, 4, 1, 5, 4, 'Diya needs iPad Pro for testing layout designs in Safari.', 'pending')
+(4, 4, 1, 5, 4, 'Meet Prajapati needs iPad Pro for testing layout designs in Safari.', 'pending')
 ON CONFLICT DO NOTHING;
 
 -- 7. Resources
@@ -86,7 +86,7 @@ ON CONFLICT DO NOTHING;
 -- 11a. Audit Auditors
 INSERT INTO audit_auditors (audit_cycle_id, user_id) VALUES
 (1, 2),   -- Rajesh Patel assigned to Q3 Hardware Audit
-(1, 3)    -- Ananya Iyer (manager) also assigned
+(1, 3)    -- Rudra Modi (manager) also assigned
 ON CONFLICT DO NOTHING;
 
 -- 12. Activity Log
