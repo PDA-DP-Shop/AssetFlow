@@ -3,6 +3,7 @@ import {
   Building2, Users, FolderOpen, Plus, Edit2, CheckCircle2, XCircle, AlertCircle, X, Loader2, Award, UserCheck, ShieldAlert
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import CustomSelect from '../components/CustomSelect';
 
 export default function OrgSetupPage() {
   const { token, user } = useAuth();
@@ -628,32 +629,30 @@ export default function OrgSetupPage() {
 
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Head / Manager</label>
-                <select
+                <CustomSelect
                   value={managerId}
                   onChange={e => setManagerId(e.target.value)}
-                  className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-sm text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-                >
-                  <option value="">None / Unassigned</option>
-                  {employees.map(emp => (
-                    <option key={emp.id} value={emp.id}>{emp.name} ({emp.role})</option>
-                  ))}
-                </select>
+                  placeholder="None / Unassigned"
+                  options={[
+                    { value: '', label: 'None / Unassigned' },
+                    ...employees.map(emp => ({ value: String(emp.id), label: `${emp.name} (${emp.role})` }))
+                  ]}
+                />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Parent Department</label>
-                <select
+                <CustomSelect
                   value={parentId}
                   onChange={e => setParentId(e.target.value)}
-                  className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-sm text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-                >
-                  <option value="">None</option>
-                  {departments
-                    .filter(d => !editingDept || d.id !== editingDept.id)
-                    .map(d => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                </select>
+                  placeholder="None"
+                  options={[
+                    { value: '', label: 'None' },
+                    ...departments
+                      .filter(d => !editingDept || d.id !== editingDept.id)
+                      .map(d => ({ value: String(d.id), label: d.name }))
+                  ]}
+                />
               </div>
 
               <div className="flex items-center justify-between p-3 bg-violet-50 rounded-xl border border-violet-100">
@@ -796,17 +795,17 @@ export default function OrgSetupPage() {
 
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Privilege Role</label>
-                <select
+                <CustomSelect
                   value={targetRole}
                   onChange={e => setTargetRole(e.target.value)}
-                  className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-sm text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-                >
-                  <option value="Employee">Employee (Basic Access)</option>
-                  <option value="Manager">Manager (Department Head)</option>
-                  <option value="Admin">Admin (Asset Manager)</option>
-                  <option value="Auditor">Auditor (Compliance Auditor)</option>
-                  <option value="Finance">Finance (Procurement/ledger)</option>
-                </select>
+                  options={[
+                    { value: 'Employee', label: 'Employee (Basic Access)' },
+                    { value: 'Manager',  label: 'Manager (Department Head)' },
+                    { value: 'Admin',    label: 'Admin (Asset Manager)' },
+                    { value: 'Auditor', label: 'Auditor (Compliance Auditor)' },
+                    { value: 'Finance', label: 'Finance (Procurement/Ledger)' },
+                  ]}
+                />
               </div>
 
               <div className="flex gap-3 pt-2">

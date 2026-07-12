@@ -29,6 +29,10 @@ export default function AllocationsPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Auto-clear banners after 4 seconds
+  useEffect(() => { if (error)   { const t = setTimeout(() => setError(''),   4000); return () => clearTimeout(t); } }, [error]);
+  useEffect(() => { if (success) { const t = setTimeout(() => setSuccess(''), 4000); return () => clearTimeout(t); } }, [success]);
+
   // Fetch all assets for select dropdown
   const fetchAssets = useCallback(async () => {
     setLoadingAssets(true);
@@ -150,9 +154,9 @@ export default function AllocationsPage() {
     setError('');
     setSuccess('');
 
-    // Current active holder id
-    const activeAlloc = selectedAssetDetails?.allocations?.find(a => a.status === 'active');
-    const from_user_id = activeAlloc ? activeAlloc.id : null; // server resolves it if null
+    // Current active holder — check both active and overdue
+    const activeAlloc = selectedAssetDetails?.allocations?.find(a => a.status === 'active' || a.status === 'overdue');
+    const from_user_id = activeAlloc ? activeAlloc.user_id : null; // user_id, NOT the alloc record id
 
     try {
       const res = await fetch('/api/transfers', {
@@ -185,8 +189,10 @@ export default function AllocationsPage() {
     }
   };
 
-  // Find the active holder name if allocated
-  const activeAllocation = selectedAssetDetails?.allocations?.find(a => a.status === 'active');
+  // Find the active holder — include overdue allocations too
+  const activeAllocation = selectedAssetDetails?.allocations?.find(
+    a => a.status === 'active' || a.status === 'overdue'
+  );
   const currentHolderName = activeAllocation ? activeAllocation.user_name : null;
 
   return (
@@ -280,7 +286,7 @@ export default function AllocationsPage() {
                     onChange={e => setToEmployeeId(e.target.value)}
                     placeholder="Select Target Employee..."
                     options={employees
-                      .filter(emp => !activeAllocation || emp.id !== activeAllocation.user_id)
+                      .filter(emp => !activeAllocation || Number(emp.id) !== Number(activeAllocation.user_id))
                       .map(emp => ({ value: String(emp.id), label: `${emp.name} (${emp.role})` }))}
                   />
                 </div>
@@ -383,8 +389,10 @@ export default function AllocationsPage() {
                         <p className="text-[10px] text-slate-400">{alloc.user_email}</p>
                       </div>
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider
-                        ${alloc.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>
-                        {alloc.status === 'active' ? 'Active' : 'Returned'}
+                        ${alloc.status === 'active'  ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                          alloc.status === 'overdue' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                          'bg-slate-100 text-slate-500 border-slate-200'}`}>
+                        {alloc.status === 'active' ? 'Active' : alloc.status === 'overdue' ? 'Overdue' : 'Returned'}
                       </span>
                     </div>
 

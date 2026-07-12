@@ -110,17 +110,20 @@ export default function DashboardPage({ onNavigate }) {
         </button>
       </div>
 
-      {/* ── 6 KPI Cards Grid ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {[
-          { label: 'Available', value: summary.available, sub: 'Ready for use', icon: <Box className="w-4 h-4 text-emerald-500" />, bg: 'bg-white border-violet-100' },
-          { label: 'Allocated', value: summary.allocated, sub: 'Currently assigned', icon: <Users className="w-4 h-4 text-violet-500" />, bg: 'bg-white border-violet-100' },
-          { label: 'Active Bookings', value: summary.active_bookings, sub: 'Resource slots', icon: <Calendar className="w-4 h-4 text-indigo-500" />, bg: 'bg-white border-violet-100' },
-          { label: 'Pending Transfers', value: summary.pending_transfers, sub: 'Awaiting approval', icon: <ArrowLeftRight className="w-4 h-4 text-blue-500" />, bg: 'bg-white border-violet-100' },
-          { label: 'Upcoming Returns', value: summary.upcoming_returns, sub: 'Due next 7 days', icon: <Clock className="w-4 h-4 text-amber-500" />, bg: 'bg-white border-violet-100' },
-          { label: 'In Repair', value: summary.under_maintenance, sub: 'Under maintenance', icon: <AlertTriangle className="w-4 h-4 text-rose-500" />, bg: 'bg-white border-violet-100' }
+          { label: 'Available',         value: summary.available,         sub: 'Ready for use',        icon: <Box className="w-4 h-4 text-emerald-500" />,      bg: 'bg-white border-violet-100', nav: 'assets' },
+          { label: 'Allocated',          value: summary.allocated,         sub: 'Currently assigned',    icon: <Users className="w-4 h-4 text-violet-500" />,     bg: 'bg-white border-violet-100', nav: 'allocations' },
+          { label: 'Active Bookings',    value: summary.active_bookings,   sub: 'Resource slots',        icon: <Calendar className="w-4 h-4 text-indigo-500" />,  bg: 'bg-white border-violet-100', nav: 'bookings' },
+          { label: 'Pending Transfers',  value: summary.pending_transfers, sub: 'Awaiting approval',     icon: <ArrowLeftRight className="w-4 h-4 text-blue-500" />, bg: 'bg-white border-violet-100', nav: 'allocations' },
+          { label: 'Upcoming Returns',   value: summary.upcoming_returns,  sub: 'Due next 7 days',       icon: <Clock className="w-4 h-4 text-amber-500" />,      bg: 'bg-white border-violet-100', nav: 'assets' },
+          { label: 'In Repair',          value: summary.under_maintenance, sub: 'Under maintenance',     icon: <AlertTriangle className="w-4 h-4 text-rose-500" />, bg: 'bg-white border-violet-100', nav: 'maintenance' }
         ].map(card => (
-          <div key={card.label} className={`glass-card rounded-2xl p-4 flex flex-col justify-between min-h-[110px] ${card.bg}`}>
+          <button
+            key={card.label}
+            onClick={() => onNavigate(card.nav)}
+            className={`glass-card rounded-2xl p-4 flex flex-col justify-between min-h-[110px] text-left transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.99] ${card.bg}`}
+          >
             <div className="flex items-center justify-between mb-2">
               <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 truncate">{card.label}</span>
               {card.icon}
@@ -129,20 +132,20 @@ export default function DashboardPage({ onNavigate }) {
               <div className="text-2xl font-bold font-display text-violet-900">{card.value}</div>
               <p className="text-[10px] text-slate-400 mt-0.5 truncate">{card.sub}</p>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
       {/* ── Quick Action Panel ── */}
       <div className="glass-card rounded-2xl p-5 bg-white space-y-4">
         <h3 className="text-xs font-bold text-violet-800 uppercase tracking-widest">Quick Actions</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Action 1 */}
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          {/* Action 1 — Register Asset */}
           <button
             onClick={() => onNavigate('assets')}
-            className="flex items-center gap-3 p-4 border border-violet-100 rounded-xl hover:bg-violet-50/50 hover:border-violet-300 hover:shadow-xs transition-all text-left"
+            className="flex items-center gap-3 p-4 border border-violet-100 rounded-xl hover:bg-violet-50/50 hover:border-violet-300 hover:shadow-sm transition-all text-left group"
           >
-            <div className="p-2 bg-violet-100 text-violet-700 rounded-xl">
+            <div className="p-2 bg-violet-100 text-violet-700 rounded-xl group-hover:bg-violet-200 transition-colors">
               <PlusCircle className="w-5 h-5" />
             </div>
             <div>
@@ -151,12 +154,12 @@ export default function DashboardPage({ onNavigate }) {
             </div>
           </button>
 
-          {/* Action 2 */}
+          {/* Action 2 — Book Resource */}
           <button
             onClick={() => onNavigate('bookings')}
-            className="flex items-center gap-3 p-4 border border-violet-100 rounded-xl hover:bg-violet-50/50 hover:border-violet-300 hover:shadow-xs transition-all text-left"
+            className="flex items-center gap-3 p-4 border border-violet-100 rounded-xl hover:bg-indigo-50/50 hover:border-indigo-300 hover:shadow-sm transition-all text-left group"
           >
-            <div className="p-2 bg-indigo-100 text-indigo-700 rounded-xl">
+            <div className="p-2 bg-indigo-100 text-indigo-700 rounded-xl group-hover:bg-indigo-200 transition-colors">
               <CalendarPlus className="w-5 h-5" />
             </div>
             <div>
@@ -165,17 +168,31 @@ export default function DashboardPage({ onNavigate }) {
             </div>
           </button>
 
-          {/* Action 3 */}
+          {/* Action 3 — Raise Transfer */}
           <button
-            onClick={() => alert('Raise support tickets, allocation requests, or return requests form. (Mock Modal Activated)')}
-            className="flex items-center gap-3 p-4 border border-violet-100 rounded-xl hover:bg-violet-50/50 hover:border-violet-300 hover:shadow-xs transition-all text-left"
+            onClick={() => onNavigate('allocations')}
+            className="flex items-center gap-3 p-4 border border-violet-100 rounded-xl hover:bg-blue-50/50 hover:border-blue-300 hover:shadow-sm transition-all text-left group"
           >
-            <div className="p-2 bg-blue-100 text-blue-700 rounded-xl">
+            <div className="p-2 bg-blue-100 text-blue-700 rounded-xl group-hover:bg-blue-200 transition-colors">
               <FileText className="w-5 h-5" />
             </div>
             <div>
               <h4 className="text-xs font-bold text-violet-900">Raise Requests</h4>
-              <p className="text-[10px] text-slate-400 mt-0.5">Request asset transfers or support</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">Asset transfers & custody</p>
+            </div>
+          </button>
+
+          {/* Action 4 — View Reports */}
+          <button
+            onClick={() => onNavigate('reports')}
+            className="flex items-center gap-3 p-4 border border-violet-100 rounded-xl hover:bg-emerald-50/50 hover:border-emerald-300 hover:shadow-sm transition-all text-left group"
+          >
+            <div className="p-2 bg-emerald-100 text-emerald-700 rounded-xl group-hover:bg-emerald-200 transition-colors">
+              <Activity className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-violet-900">View Reports</h4>
+              <p className="text-[10px] text-slate-400 mt-0.5">Analytics & export data</p>
             </div>
           </button>
         </div>

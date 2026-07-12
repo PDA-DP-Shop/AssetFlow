@@ -12,7 +12,7 @@ import MaintenancePage from './pages/MaintenancePage.jsx';
 import ReportsPage from './pages/ReportsPage.jsx';
 import NotificationsPage from './pages/NotificationsPage.jsx';
 import { 
-  Shield, Layers, Users, Box, AlertTriangle, ShieldAlert,
+  Shield, Users, Box, AlertTriangle, ShieldAlert,
   CheckCircle2, Bell, Activity, Cpu, Clock,
   ArrowRightLeft, CalendarDays, LogOut, UserCircle2, Wrench
 } from 'lucide-react';

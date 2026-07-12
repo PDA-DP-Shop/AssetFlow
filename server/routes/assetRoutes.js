@@ -183,7 +183,8 @@ router.get('/:id', async (req, res) => {
     // 2. Fetch allocation history
     const allocationQuery = `
       SELECT 
-        al.id, 
+        al.id,
+        al.user_id,
         al.allocated_at, 
         al.returned_at, 
         al.notes, 
