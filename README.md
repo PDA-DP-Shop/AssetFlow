@@ -2,7 +2,7 @@
 
 <img src="client/public/assets/logo-animated.svg" width="150" height="150" alt="AssetFlow animated logo"/><br><br>
 
-<img src="https://readme-typing-svg.demolab.com?font=Poppins&size=22&duration=3000&pause=800&color=714B67&center=true&vCenter=true&width=1000&lines=AssetFlow" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=Poppins&size=35&duration=3000&pause=800&color=714B67&center=true&vCenter=true&width=1000&lines=AssetFlow" alt="Typing SVG" />
 
 <br/><br/>
 
