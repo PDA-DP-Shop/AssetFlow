@@ -24,7 +24,10 @@ INSERT INTO users (name, email, password_hash, role, department_id) VALUES
 ('Rajesh Patel',    'rajesh@assetflow.com',   '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 2),
 ('Rudra Modi',      'rudra@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Auditor',  1),
 ('Meet Prajapati',  'meet@assetflow.com',     '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 1),
-('Udit Rana',       'udit@assetflow.com',     '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  4)
+('Udit Rana',       'udit@assetflow.com',     '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  4),
+('Priya Nair',      'priya@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  3),
+('Neha Kapoor',     'neha@assetflow.com',     '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  5),
+('Mit Patel',       'mit@assetflow.com',      '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 3)
 ON CONFLICT (email) DO NOTHING;
 
 -- 4. Assets
@@ -35,21 +38,33 @@ INSERT INTO assets (name, serial_number, category_id, department_id, status, acq
 ('iPad Pro 12.9" Cellular', 'SN-IPADPRO-90082', 5, 4, 'Allocated', '2026-03-01', 1299.00, 'Excellent', 'Delhi Sales Office', true),
 ('Herman Miller Aeron Chair', 'SN-AERON-55610', 4, 5, 'Allocated', '2024-06-18', 1450.00, 'Good', 'Pune HR Hub', false),
 ('Testbench iPhone 15 Pro', 'SN-IPHONE15-2234', 5, 1, 'Available', '2025-10-05', 999.00, 'Fair', 'Chennai Testing Hub', true),
-('Lenovo ThinkPad X1 Carbon', 'SN-THINKPAD-00382', 1, 1, 'Allocated', '2025-05-10', 1800.00, 'Good', 'Bengaluru Office Floor 4', false)
+('Lenovo ThinkPad X1 Carbon', 'SN-THINKPAD-00382', 1, 1, 'Allocated', '2025-05-10', 1800.00, 'Good', 'Bengaluru Office Floor 4', false),
+('Logitech MX Master 3S Mouse', 'SN-MXM3S-00921', 5, 3, 'Allocated', '2026-03-15', 100.00, 'Excellent', 'Bengaluru Office Floor 3', false),
+('Epson Projector EB-FH06', 'SN-EPSON-88291', 2, 3, 'Allocated', '2025-08-12', 650.00, 'Good', 'Bengaluru Office Floor 3', false),
+('Ergonomic Office Desk', 'SN-DESK-77210', 4, 2, 'Allocated', '2025-01-20', 400.00, 'Good', 'Mumbai Data Center', false),
+('Samsung Galaxy Tab S9', 'SN-SAMS9-44210', 5, 4, 'Allocated', '2025-12-05', 799.00, 'Excellent', 'Delhi Sales Office', false),
+('HP EliteBook 840 G10', 'SN-HPELITE-1120', 1, 3, 'Allocated', '2026-02-10', 1400.00, 'Excellent', 'Bengaluru Office Floor 3', false),
+('Juniper Secure Gateway', 'SN-JUNIPER-5510', 3, 2, 'Allocated', '2025-04-18', 2200.00, 'Good', 'Mumbai Data Center', false)
 ON CONFLICT (serial_number) DO NOTHING;
 
 -- 5. Allocations
 INSERT INTO allocations (asset_id, user_id, notes, expected_return_date, status) VALUES
-(1, 4, 'Assigned to Meet Prajapati for software engineering work.', NULL, 'active'),
-(4, 5, 'Assigned to Udit Rana for field client presentations.', NULL, 'active'),
-(5, 1, 'Standard admin desk configuration.', NULL, 'active'),
-(7, 4, 'Standard issue work laptop (overdue check showcase).', '2026-06-01', 'active')
+((SELECT id FROM assets WHERE serial_number = 'SN-M3MAX-88219'), (SELECT id FROM users WHERE email = 'meet@assetflow.com'), 'Assigned to Meet Prajapati for software engineering work.', NULL, 'active'),
+((SELECT id FROM assets WHERE serial_number = 'SN-IPADPRO-90082'), (SELECT id FROM users WHERE email = 'udit@assetflow.com'), 'Assigned to Udit Rana for field client presentations.', NULL, 'active'),
+((SELECT id FROM assets WHERE serial_number = 'SN-AERON-55610'), (SELECT id FROM users WHERE email = 'neha@assetflow.com'), 'Assigned to Neha Kapoor for HR administration.', NULL, 'active'),
+((SELECT id FROM assets WHERE serial_number = 'SN-THINKPAD-00382'), (SELECT id FROM users WHERE email = 'meet@assetflow.com'), 'Standard issue work laptop (overdue check showcase).', '2026-06-01', 'active'),
+((SELECT id FROM assets WHERE serial_number = 'SN-MXM3S-00921'), (SELECT id FROM users WHERE email = 'mit@assetflow.com'), 'MX mouse assigned to Mit Patel.', NULL, 'active'),
+((SELECT id FROM assets WHERE serial_number = 'SN-EPSON-88291'), (SELECT id FROM users WHERE email = 'priya@assetflow.com'), 'Projector allocated to Priya Nair for conference rooms.', NULL, 'active'),
+((SELECT id FROM assets WHERE serial_number = 'SN-DESK-77210'), (SELECT id FROM users WHERE email = 'devansh@assetflow.com'), 'Ergonomic Desk assigned to Devansh Patel.', NULL, 'active'),
+((SELECT id FROM assets WHERE serial_number = 'SN-SAMS9-44210'), (SELECT id FROM users WHERE email = 'udit@assetflow.com'), 'Samsung tablet assigned to Udit Rana.', NULL, 'active'),
+((SELECT id FROM assets WHERE serial_number = 'SN-HPELITE-1120'), (SELECT id FROM users WHERE email = 'mit@assetflow.com'), 'HP laptop issued to Mit Patel.', NULL, 'active'),
+((SELECT id FROM assets WHERE serial_number = 'SN-JUNIPER-5510'), (SELECT id FROM users WHERE email = 'rajesh@assetflow.com'), 'Security gateway allocated to Rajesh Patel.', NULL, 'active')
 ON CONFLICT DO NOTHING;
 
 -- 6. Transfers
 INSERT INTO transfers (asset_id, from_department_id, to_department_id, from_user_id, to_user_id, reason, status) VALUES
-(1, 2, 1, 2, 4, 'Initial departmental migration', 'approved'),
-(4, 4, 1, 5, 4, 'Meet Prajapati needs iPad Pro for testing layout designs in Safari.', 'pending')
+((SELECT id FROM assets WHERE serial_number = 'SN-M3MAX-88219'), (SELECT id FROM departments WHERE code = 'IT'), (SELECT id FROM departments WHERE code = 'ENG'), (SELECT id FROM users WHERE email = 'rajesh@assetflow.com'), (SELECT id FROM users WHERE email = 'meet@assetflow.com'), 'Initial departmental migration', 'approved'),
+((SELECT id FROM assets WHERE serial_number = 'SN-IPADPRO-90082'), (SELECT id FROM departments WHERE code = 'SLS'), (SELECT id FROM departments WHERE code = 'ENG'), (SELECT id FROM users WHERE email = 'udit@assetflow.com'), (SELECT id FROM users WHERE email = 'meet@assetflow.com'), 'Meet Prajapati needs iPad Pro for testing layout designs in Safari.', 'pending')
 ON CONFLICT DO NOTHING;
 
 -- 7. Resources
@@ -61,14 +76,22 @@ ON CONFLICT DO NOTHING;
 
 -- 8. Bookings
 INSERT INTO bookings (resource_id, booked_by, start_time, end_time, purpose, status) VALUES
-(1, 3, CURRENT_TIMESTAMP + INTERVAL '1 hour',  CURRENT_TIMESTAMP + INTERVAL '2 hours', 'Sprint Review Planning', 'Upcoming'),
-(2, 4, CURRENT_TIMESTAMP + INTERVAL '1 day',   CURRENT_TIMESTAMP + INTERVAL '3 days',  'Server benchmark runs',  'Upcoming'),
-(1, 4, CURRENT_TIMESTAMP + INTERVAL '10 minutes', CURRENT_TIMESTAMP + INTERVAL '40 minutes', 'Quick UI/UX Review', 'Upcoming')
+((SELECT id FROM resources WHERE name = 'Narmada Conference Room'), (SELECT id FROM users WHERE email = 'rudra@assetflow.com'), CURRENT_TIMESTAMP + INTERVAL '1 hour',  CURRENT_TIMESTAMP + INTERVAL '2 hours', 'Sprint Review Planning', 'Upcoming'),
+((SELECT id FROM resources WHERE name = 'Bengaluru Server Rack 3B'), (SELECT id FROM users WHERE email = 'meet@assetflow.com'), CURRENT_TIMESTAMP + INTERVAL '1 day',   CURRENT_TIMESTAMP + INTERVAL '3 days',  'Server benchmark runs',  'Upcoming'),
+((SELECT id FROM resources WHERE name = 'Narmada Conference Room'), (SELECT id FROM users WHERE email = 'meet@assetflow.com'), CURRENT_TIMESTAMP + INTERVAL '10 minutes', CURRENT_TIMESTAMP + INTERVAL '40 minutes', 'Quick UI/UX Review', 'Upcoming'),
+((SELECT id FROM resources WHERE name = 'Chennai iOS Testing Kit 1'), (SELECT id FROM users WHERE email = 'meet@assetflow.com'), CURRENT_TIMESTAMP + INTERVAL '2 hours', CURRENT_TIMESTAMP + INTERVAL '3 hours', 'iOS App Layout Verification', 'Upcoming'),
+((SELECT id FROM resources WHERE name = 'Chennai iOS Testing Kit 1'), (SELECT id FROM users WHERE email = 'mit@assetflow.com'), CURRENT_TIMESTAMP + INTERVAL '4 hours', CURRENT_TIMESTAMP + INTERVAL '5 hours', 'Safari layout test', 'Upcoming'),
+((SELECT id FROM resources WHERE name = 'Bengaluru Server Rack 3B'), (SELECT id FROM users WHERE email = 'devansh@assetflow.com'), CURRENT_TIMESTAMP + INTERVAL '5 hours', CURRENT_TIMESTAMP + INTERVAL '6 hours', 'Gateway setup staging', 'Upcoming')
 ON CONFLICT DO NOTHING;
 
 -- 9. Maintenance Requests
 INSERT INTO maintenance_requests (asset_id, reported_by, description, priority, status, cost, scheduled_date) VALUES
-(3, 1, 'Switch Port 24 experiencing packet drop and physical port damage.', 'high', 'in_progress', 350.00, '2026-07-15')
+((SELECT id FROM assets WHERE serial_number = 'SN-CISCO-9300X'), (SELECT id FROM users WHERE email = 'devansh@assetflow.com'), 'Switch Port 24 experiencing packet drop and physical port damage.', 'high', 'in_progress', 350.00, '2026-07-15'),
+((SELECT id FROM assets WHERE serial_number = 'SN-HPELITE-1120'), (SELECT id FROM users WHERE email = 'mit@assetflow.com'), 'Keyboard keys sticking, needs replacement keys.', 'medium', 'Resolved', 150.00, '2026-07-02'),
+((SELECT id FROM assets WHERE serial_number = 'SN-DELL4K-00293'), (SELECT id FROM users WHERE email = 'devansh@assetflow.com'), 'Screen backlight dimming, board check needed.', 'high', 'Approved', 220.00, '2026-07-10'),
+((SELECT id FROM assets WHERE serial_number = 'SN-EPSON-88291'), (SELECT id FROM users WHERE email = 'priya@assetflow.com'), 'Lens filter cracked and lamp requires replacement.', 'critical', 'In Progress', 450.00, '2026-07-14'),
+((SELECT id FROM assets WHERE serial_number = 'SN-DESK-77210'), (SELECT id FROM users WHERE email = 'devansh@assetflow.com'), 'Height adjustment lever loose, tighten adjustment pin.', 'low', 'Resolved', 80.00, '2026-07-01'),
+((SELECT id FROM assets WHERE serial_number = 'SN-IPHONE15-2234'), (SELECT id FROM users WHERE email = 'meet@assetflow.com'), 'Battery health check and replacement.', 'low', 'Resolved', 120.00, '2026-07-05')
 ON CONFLICT DO NOTHING;
 
 -- 10. Audit Cycles
@@ -78,14 +101,14 @@ ON CONFLICT (name) DO NOTHING;
 
 -- 11. Audit Items
 INSERT INTO audit_items (audit_cycle_id, asset_id, expected_location, status, verified_by, verified_at, notes) VALUES
-(1, 1, 'Bengaluru Office Floor 4', 'Verified',  3, CURRENT_TIMESTAMP,                       'Physically inspected. In excellent condition.'),
-(1, 2, 'Bengaluru Office Floor 4', 'Pending',   NULL, NULL,                                 NULL),
-(1, 3, 'Mumbai Data Center',       'Damaged',   3, CURRENT_TIMESTAMP - INTERVAL '1 day',    'Requires port replacement.')
+(1, (SELECT id FROM assets WHERE serial_number = 'SN-M3MAX-88219'), 'Bengaluru Office Floor 4', 'Verified',  (SELECT id FROM users WHERE email = 'rudra@assetflow.com'), CURRENT_TIMESTAMP,                       'Physically inspected. In excellent condition.'),
+(1, (SELECT id FROM assets WHERE serial_number = 'SN-DELL4K-00293'), 'Bengaluru Office Floor 4', 'Pending',   NULL, NULL,                                 NULL),
+(1, (SELECT id FROM assets WHERE serial_number = 'SN-CISCO-9300X'), 'Mumbai Data Center',       'Damaged',   (SELECT id FROM users WHERE email = 'rudra@assetflow.com'), CURRENT_TIMESTAMP - INTERVAL '1 day',    'Requires port replacement.')
 ON CONFLICT DO NOTHING;
 
 -- 11a. Audit Auditors
 INSERT INTO audit_auditors (audit_cycle_id, user_id) VALUES
-(1, 3)    -- Rudra Modi (auditor) assigned to Q3 Hardware Audit
+(1, (SELECT id FROM users WHERE email = 'rudra@assetflow.com'))    -- Rudra Modi (auditor) assigned to Q3 Hardware Audit
 ON CONFLICT DO NOTHING;
 
 -- 12. Activity Log
