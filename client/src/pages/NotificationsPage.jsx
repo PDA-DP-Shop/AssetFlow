@@ -176,7 +176,7 @@ export default function NotificationsPage() {
             onClick={() => setActiveFilter(tab.key)}
             className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all
               ${activeFilter === tab.key
-                ? 'bg-violet-650 text-white shadow-xs'
+                ? 'bg-violet-600 text-white shadow-xs'
                 : 'text-slate-500 hover:text-violet-700 hover:bg-violet-50/50'}`}
           >
             {tab.label}
@@ -220,7 +220,7 @@ export default function NotificationsPage() {
                       {formatRelativeTime(notif.created_at)}
                     </span>
                     {!notif.is_read && (
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-violet-650" />
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-violet-600" />
                     )}
                   </div>
                 </div>

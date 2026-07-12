@@ -96,7 +96,15 @@ select:focus {
 }
 
 select option {
-  background-color: #ffffff;
-  color: #1e1b4b;
-  padding: 8px;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #1e1b4b !important;
+  font-size: 0.875rem;
+  padding: 8px 12px;
+}
+
+select option:hover,
+select option:checked {
+  background-color: #ede9fe !important;
+  color: #5b21b6 !important;
 }
