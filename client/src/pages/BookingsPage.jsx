@@ -2,7 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Calendar, Clock, User, Plus, X, AlertCircle, CheckCircle2, Loader2, Info
 } from 'lucide-react';
+import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
+
+// Connect to socket for live updates
+const socket = io(window.location.origin, { transports: ['websocket', 'polling'] });
 
 export default function BookingsPage() {
   const { token, user } = useAuth();
@@ -67,6 +71,50 @@ export default function BookingsPage() {
   useEffect(() => {
     fetchBookings();
   }, [fetchBookings]);
+
+  // ── Listen for Socket.io events ────────────────────────────────────────────
+  useEffect(() => {
+    socket.on('booking:created', (data) => {
+      // If matches currently selected resource, append it live without refresh
+      if (Number(selectedResourceId) === Number(data.resource_id)) {
+        setBookings(prev => {
+          if (prev.some(b => b.id === data.booking.id)) return prev;
+          return [...prev, data.booking].sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+        });
+      }
+    });
+
+    socket.on('booking:cancelled', (data) => {
+      // If matches currently selected resource, cancel it live without refresh
+      if (Number(selectedResourceId) === Number(data.resource_id)) {
+        setBookings(prev => prev.map(b => b.id === data.booking_id ? { ...b, status: 'Cancelled' } : b));
+      }
+    });
+
+    return () => {
+      socket.off('booking:created');
+      socket.off('booking:cancelled');
+    };
+  }, [selectedResourceId]);
+
+  // ── Cancel Booking Handler ─────────────────────────────────────────────────
+  const handleCancelBooking = async (bookingId) => {
+    setError('');
+    setSuccess('');
+    try {
+      const res = await fetch(`/api/bookings/${bookingId}/cancel`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to cancel booking.');
+
+      setSuccess('Booking cancelled successfully.');
+      setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: 'Cancelled' } : b));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   // ── Time helper math for 9:00 to 13:00 (1:00 PM) ───────────────────────────
   const GRID_START_MIN = 9 * 60;  // 09:00 = 540 mins
@@ -155,7 +203,7 @@ export default function BookingsPage() {
     return {
       top: `${topPct}%`,
       height: `${heightPct}%`,
-      minHeight: '28px' // ensure very short bookings are visible
+      minHeight: '44px' // ensure room for Cancel button
     };
   };
 
@@ -176,7 +224,7 @@ export default function BookingsPage() {
       </div>
 
       {/* ── Top Bar: Dropdown + Date Picker ── */}
-      <div className="glass-card rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-center justify-between">
+      <div className="glass-card rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-center justify-between bg-white shadow-xs">
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           {/* Resource select */}
           <div className="w-full sm:w-64 space-y-1">
@@ -281,9 +329,26 @@ export default function BookingsPage() {
                           {new Date(b.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(b.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-violet-200">
-                        <User className="w-3 h-3 shrink-0" />
-                        <span className="truncate">{b.booked_by_name}</span>
+                      <div className="flex items-center justify-between mt-1 gap-2">
+                        <div className="flex items-center gap-1 mt-0.5 text-[10px] text-violet-200 min-w-0">
+                          <User className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">{b.booked_by_name}</span>
+                        </div>
+
+                        {/* Cancel booking option shown for Upcoming schedules */}
+                        {b.status === 'Upcoming' && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm('Cancel this booking slot reservation?')) {
+                                handleCancelBooking(b.id);
+                              }
+                            }}
+                            className="text-[9px] font-bold bg-rose-600 hover:bg-rose-700 text-white px-2 py-0.5 rounded-lg transition-all cursor-pointer shadow-sm shadow-rose-900/10 z-10 whitespace-nowrap"
+                          >
+                            Cancel
+                          </button>
+                        )}
                       </div>
                     </div>
                   );

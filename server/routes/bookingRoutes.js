@@ -102,6 +102,10 @@ router.post('/', async (req, res) => {
         message: `${userName} booked "${resourceName}"`,
         time: new Date()
       });
+      io.emit('booking:created', {
+        booking,
+        resource_id: Number(resource_id)
+      });
     }
 
     return res.status(201).json({
@@ -151,6 +155,75 @@ router.get('/:resourceId', async (req, res) => {
   } catch (err) {
     console.error(`[GET /api/bookings/${resourceId}]`, err.message);
     return res.status(500).json({ error: 'Server error fetching resource calendar.', details: err.message });
+  }
+});
+
+// ─── PATCH /api/bookings/:id/cancel ───────────────────────────────────────────
+router.patch('/:id/cancel', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const bookingCheck = await db.query(
+      `SELECT b.*, r.name AS resource_name, u.name AS user_name
+       FROM bookings b
+       JOIN resources r ON b.resource_id = r.id
+       JOIN users u ON b.booked_by = u.id
+       WHERE b.id = $1`,
+      [id]
+    );
+
+    if (bookingCheck.rowCount === 0) {
+      return res.status(404).json({ error: 'Booking not found.' });
+    }
+
+    const booking = bookingCheck.rows[0];
+    if (booking.status === 'Cancelled') {
+      return res.status(400).json({ error: 'Booking is already cancelled.' });
+    }
+
+    // Cancel booking in DB
+    const cancelRes = await db.query(
+      `UPDATE bookings
+       SET status = 'Cancelled'
+       WHERE id = $1
+       RETURNING *`,
+      [id]
+    );
+
+    const updatedBooking = cancelRes.rows[0];
+
+    // Log the cancellation
+    await db.query(
+      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
+       VALUES ($1, 'BOOKING_CANCEL', 'bookings', $2, $3)`,
+      [booking.booked_by, id, `Cancelled booking for "${booking.resource_name}"`]
+    );
+
+    // Emit socket notifications
+    const io = req.app.get('socketio');
+    if (io) {
+      io.emit('activity', {
+        action: 'BOOKING_CANCEL',
+        details: `Cancelled booking for "${booking.resource_name}"`,
+        user_name: booking.user_name
+      });
+      io.emit('notification', {
+        message: `${booking.user_name} cancelled booking for "${booking.resource_name}"`,
+        time: new Date()
+      });
+      io.emit('booking:cancelled', {
+        booking_id: Number(id),
+        resource_id: booking.resource_id
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Booking cancelled successfully.',
+      booking: updatedBooking
+    });
+  } catch (err) {
+    console.error(`[PATCH /api/bookings/${id}/cancel]`, err.message);
+    return res.status(500).json({ error: 'Server error during booking cancellation.', details: err.message });
   }
 });
 
