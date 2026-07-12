@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
 
 /**
  * CustomSelect — branded dropdown that fully replaces native <select>
+ * Uses a React Portal so the dropdown panel is NEVER clipped by parent overflow.
  *
  * Props:
  *  value        — current value (string)
- *  onChange     — (value: string) => void
+ *  onChange     — (e: { target: { value } }) => void  (matches native select API)
  *  options      — [{ value, label }]  OR  [string, ...]  (auto-converted)
  *  placeholder  — shown when value is empty
- *  className    — extra classes for the trigger button
+ *  className    — extra classes for the trigger button wrapper
  *  disabled
  */
 export default function CustomSelect({
@@ -19,10 +21,10 @@ export default function CustomSelect({
   placeholder = 'Select...',
   className = '',
   disabled = false,
-  required = false,
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef(null);
+  const [pos, setPos]   = useState({ top: 0, left: 0, width: 0 });
+  const triggerRef      = useRef(null);
 
   // Normalise options to { value, label }
   const normalised = options.map(o =>
@@ -31,14 +33,33 @@ export default function CustomSelect({
 
   const selected = normalised.find(o => String(o.value) === String(value));
 
-  // Close on outside click
+  // Recalculate position whenever the panel opens
+  const openPanel = () => {
+    if (disabled) return;
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPos({
+        top:   rect.bottom + window.scrollY + 4,
+        left:  rect.left   + window.scrollX,
+        width: rect.width,
+      });
+    }
+    setOpen(v => !v);
+  };
+
+  // Close on outside click or scroll
   useEffect(() => {
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    if (!open) return;
+    const close = () => setOpen(false);
+    document.addEventListener('mousedown', close);
+    window.addEventListener('scroll',     close, true);
+    window.addEventListener('resize',     close);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      window.removeEventListener('scroll',      close, true);
+      window.removeEventListener('resize',      close);
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
+  }, [open]);
 
   const pick = (val) => {
     onChange({ target: { value: val } });
@@ -46,16 +67,17 @@ export default function CustomSelect({
   };
 
   return (
-    <div ref={ref} className={`relative ${className}`}>
-      {/* Trigger */}
+    <div className={`relative ${className}`}>
+      {/* ── Trigger button ────────────────────────────────────────────── */}
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
-        onClick={() => !disabled && setOpen(v => !v)}
+        onMouseDown={(e) => { e.stopPropagation(); openPanel(); }}
         className={`
           w-full flex items-center justify-between gap-2
           bg-white border rounded-xl px-4 py-2.5
-          text-sm font-medium text-left
+          text-sm font-medium text-left select-none
           transition-all duration-200 cursor-pointer
           ${open
             ? 'border-violet-500 ring-2 ring-violet-200 shadow-sm'
@@ -63,7 +85,7 @@ export default function CustomSelect({
           ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-50' : ''}
         `}
       >
-        <span className={selected ? 'text-violet-900' : 'text-slate-400'}>
+        <span className={`truncate ${selected ? 'text-violet-900' : 'text-slate-400'}`}>
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDown
@@ -71,45 +93,52 @@ export default function CustomSelect({
         />
       </button>
 
-      {/* Dropdown panel */}
-      {open && (
+      {/* ── Portal dropdown panel ─────────────────────────────────────── */}
+      {open && createPortal(
         <div
+          onMouseDown={(e) => e.stopPropagation()}
+          style={{
+            position: 'absolute',
+            top:      pos.top,
+            left:     pos.left,
+            width:    pos.width,
+            zIndex:   99999,
+          }}
           className="
-            absolute z-50 mt-1.5 w-full
             bg-white border border-violet-100
-            rounded-2xl shadow-xl shadow-violet-200/40
+            rounded-2xl shadow-2xl shadow-violet-300/30
             overflow-hidden
             animate-[fadeIn_0.15s_ease-out]
           "
-          style={{ minWidth: '100%' }}
         >
-          <div className="max-h-56 overflow-y-auto py-1.5 custom-scrollbar">
+          <div className="max-h-60 overflow-y-auto py-1">
             {normalised.map(opt => {
               const isSelected = String(opt.value) === String(value);
               return (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => pick(opt.value)}
+                  onMouseDown={() => pick(opt.value)}
                   className={`
                     w-full flex items-center justify-between gap-3
                     px-4 py-2.5 text-sm text-left
-                    transition-colors duration-150
+                    transition-colors duration-100
                     ${isSelected
                       ? 'bg-violet-600 text-white font-semibold'
                       : 'text-violet-900 hover:bg-violet-50 hover:text-violet-700'}
                   `}
                 >
-                  <span>{opt.label}</span>
-                  {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
+                  <span className="truncate">{opt.label}</span>
+                  {isSelected && <Check className="w-3.5 h-3.5 shrink-0 opacity-90" />}
                 </button>
               );
             })}
             {normalised.length === 0 && (
-              <p className="px-4 py-3 text-xs text-slate-400 italic">No options available</p>
+              <p className="px-4 py-3 text-xs text-slate-400 italic text-center">No options available</p>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
