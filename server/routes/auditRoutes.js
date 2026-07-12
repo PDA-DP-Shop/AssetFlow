@@ -93,6 +93,22 @@ router.post('/audits', async (req, res) => {
   }
 });
 
+// GET /api/audits — List all audit cycles
+router.get('/audits', async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT ac.*, d.name AS department_name
+       FROM audit_cycles ac
+       LEFT JOIN departments d ON ac.scope_department_id = d.id
+       ORDER BY ac.created_at DESC`
+    );
+    return res.json({ cycles: result.rows });
+  } catch (err) {
+    console.error('[GET /api/audits]', err.message);
+    return res.status(500).json({ error: 'Failed to fetch audit cycles.' });
+  }
+});
+
 // ─── GET /api/audits/:id ──────────────────────────────────────────────────────
 // Fetch details of a cycle, list of assigned auditors, and all generated audit items.
 router.get('/audits/:id', async (req, res) => {
@@ -241,6 +257,38 @@ router.patch('/audit-items/:id', async (req, res) => {
     return res.status(500).json({ error: 'Server error updating audit item.', details: err.message });
   } finally {
     client.release();
+  }
+});
+
+// PATCH /api/audits/:id — Update audit cycle status (e.g. set status = 'Closed')
+router.patch('/audits/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (status !== 'Closed' && status !== 'Open') {
+    return res.status(400).json({ error: "Invalid status. Must be 'Open' or 'Closed'." });
+  }
+
+  try {
+    const checkCycle = await db.query('SELECT id FROM audit_cycles WHERE id = $1', [id]);
+    if (checkCycle.rowCount === 0) {
+      return res.status(404).json({ error: 'Audit cycle not found.' });
+    }
+
+    const updateQuery = `
+      UPDATE audit_cycles
+      SET status = $1
+      WHERE id = $2
+      RETURNING *;
+    `;
+    const result = await db.query(updateQuery, [status, id]);
+    return res.status(200).json({
+      message: \`Audit cycle status updated to \${status}.\`,
+      cycle: result.rows[0]
+    });
+  } catch (err) {
+    console.error(\`[PATCH /api/audits/\${id}]\`, err.message);
+    return res.status(500).json({ error: 'Server error updating audit cycle status.', details: err.message });
   }
 });
 

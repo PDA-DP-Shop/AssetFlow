@@ -4,6 +4,7 @@ import { useAuth } from './context/AuthContext.jsx';
 import AuthPage from './pages/AuthPage.jsx';
 import AssetsPage from './pages/AssetsPage.jsx';
 import BookingsPage from './pages/BookingsPage.jsx';
+import AuditsPage from './pages/AuditsPage.jsx';
 import { 
   Shield, Layers, Users, Box, AlertTriangle,
   CheckCircle2, Bell, Activity, Cpu, Clock,
@@ -227,56 +228,7 @@ export default function App() {
           {activeTab === 'bookings' && <BookingsPage />}
 
           {/* ── AUDITS ── */}
-          {activeTab === 'audits' && (
-            <div className="space-y-6">
-              <div className="glass-card rounded-2xl p-6 space-y-4">
-                <h2 className="text-lg font-bold text-violet-900 font-display">Compliance & Audit Center</h2>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  Verify internal device allocation records, track cycle targets and flag damaged or missing assets immediately.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {[
-                    { icon: <CalendarDays className="w-5 h-5 text-violet-500" />,  label: 'Current Cycle',        value: 'Q3 Hardware Audit' },
-                    { icon: <ArrowRightLeft className="w-5 h-5 text-indigo-500" />, label: 'Pending Verifications', value: '12 Assets' },
-                    { icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />, label: 'Last Audit Date',       value: 'July 02, 2026' },
-                  ].map(item => (
-                    <div key={item.label} className="p-4 bg-violet-50 border border-violet-100 rounded-xl flex items-center gap-3">
-                      {item.icon}
-                      <div>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase">{item.label}</p>
-                        <h4 className="text-sm font-semibold text-violet-900">{item.value}</h4>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="glass-card rounded-2xl p-6 space-y-4">
-                <h3 className="text-sm font-bold text-violet-800 uppercase tracking-widest">Ongoing Verification Queue</h3>
-                <div className="space-y-2">
-                  {[
-                    { asset: 'Engineering Server Node 4', cycle: 'Q3 Hardware Audit', auditor: 'Admin (System)', verified: false },
-                    { asset: 'Design Studio iPad 12.9"',  cycle: 'Q3 Hardware Audit', auditor: 'Automated Audit', verified: true },
-                    { asset: 'Meeting Room Hub 2',         cycle: 'Q3 Hardware Audit', auditor: 'IT Support',      verified: false },
-                  ].map((item, idx) => (
-                    <div key={idx} className="p-4 bg-violet-50/60 hover:bg-violet-50 border border-violet-100 rounded-xl flex items-center justify-between text-xs transition-all">
-                      <div>
-                        <h4 className="font-semibold text-violet-900">{item.asset}</h4>
-                        <span className="text-[10px] text-slate-400">{item.cycle} · {item.auditor}</span>
-                      </div>
-                      <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
-                        item.verified
-                          ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                          : 'bg-amber-50 text-amber-600 border-amber-200'
-                      }`}>
-                        {item.verified ? 'Self-Verified' : 'Pending'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          {activeTab === 'audits' && <AuditsPage />}
         </section>
       </main>
 
