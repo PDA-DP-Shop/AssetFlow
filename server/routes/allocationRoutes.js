@@ -1,5 +1,6 @@
 const express = require('express');
 const db      = require('../db/db');
+const { logActivity } = require('../utils/logger');
 const router  = express.Router();
 
 // POST /api/allocations — allocate an asset
@@ -74,27 +75,10 @@ router.post('/', async (req, res) => {
 
     // 5. Write activity log
     const logDetails = `Allocated "${asset.name}" to ${targetUser.name}.` + (expected_return_date ? ` Expected return: ${expected_return_date}` : '');
-    await client.query(
-      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-       VALUES ($1, 'ASSET_ALLOCATE', 'allocations', $2, $3)`,
-      [user_id, allocation.id, logDetails]
-    );
+    const io = req.app.get('socketio');
+    await logActivity(user_id, 'ASSET_ALLOCATE', logDetails, 'allocations', allocation.id, io);
 
     await client.query('COMMIT');
-
-    // Emit Socket notifications
-    const io = req.app.get('socketio');
-    if (io) {
-      io.emit('activity', {
-        action: 'ASSET_ALLOCATE',
-        details: logDetails,
-        user_name: 'AssetFlow Administrator'
-      });
-      io.emit('notification', {
-        message: `Asset allocated to ${targetUser.name}`,
-        time: new Date()
-      });
-    }
 
     return res.status(201).json({
       message: 'Asset allocated successfully.',
@@ -153,27 +137,10 @@ router.post('/:id/return', async (req, res) => {
 
     // 4. Log the action
     const logDetails = `Returned asset "${allocation.asset_name}" from ${allocation.user_name}. Check-in note: "${return_notes || 'None'}"`;
-    await client.query(
-      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-       VALUES ($1, 'ASSET_RETURN', 'allocations', $2, $3)`,
-      [allocation.user_id, id, logDetails]
-    );
+    const io = req.app.get('socketio');
+    await logActivity(allocation.user_id, 'ASSET_RETURN', logDetails, 'allocations', id, io);
 
     await client.query('COMMIT');
-
-    // Emit Socket notifications
-    const io = req.app.get('socketio');
-    if (io) {
-      io.emit('activity', {
-        action: 'ASSET_RETURN',
-        details: logDetails,
-        user_name: 'AssetFlow Administrator'
-      });
-      io.emit('notification', {
-        message: `Asset returned from ${allocation.user_name}`,
-        time: new Date()
-      });
-    }
 
     return res.status(200).json({
       message: 'Asset marked as returned successfully.',

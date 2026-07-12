@@ -1,5 +1,6 @@
 const express = require('express');
 const db      = require('../db/db');
+const { logActivity } = require('../utils/logger');
 const router  = express.Router();
 
 // ─── POST /api/bookings ───────────────────────────────────────────────────────
@@ -84,24 +85,11 @@ router.post('/', async (req, res) => {
     const userName = userCheck.rows[0].name;
 
     // Log the activity
-    await db.query(
-      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-       VALUES ($1, 'BOOKING_CREATE', 'bookings', $2, $3)`,
-      [booked_by, booking.id, `Booked "${resourceName}" for: "${purpose || 'Reserved Slot'}"`]
-    );
-
-    // Emit socket notification
     const io = req.app.get('socketio');
+    const logDetails = `Booked "${resourceName}" for: "${purpose || 'Reserved Slot'}"`;
+    await logActivity(booked_by, 'BOOKING_CREATE', logDetails, 'bookings', booking.id, io);
+
     if (io) {
-      io.emit('activity', {
-        action: 'BOOKING_CREATE',
-        details: `Booked "${resourceName}" for: "${purpose || 'Reserved Slot'}"`,
-        user_name: userName
-      });
-      io.emit('notification', {
-        message: `${userName} booked "${resourceName}"`,
-        time: new Date()
-      });
       io.emit('booking:created', {
         booking,
         resource_id: Number(resource_id)
@@ -193,24 +181,11 @@ router.patch('/:id/cancel', async (req, res) => {
     const updatedBooking = cancelRes.rows[0];
 
     // Log the cancellation
-    await db.query(
-      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-       VALUES ($1, 'BOOKING_CANCEL', 'bookings', $2, $3)`,
-      [booking.booked_by, id, `Cancelled booking for "${booking.resource_name}"`]
-    );
-
-    // Emit socket notifications
     const io = req.app.get('socketio');
+    const logDetails = `Cancelled booking for "${booking.resource_name}"`;
+    await logActivity(booking.booked_by, 'BOOKING_CANCEL', logDetails, 'bookings', id, io);
+
     if (io) {
-      io.emit('activity', {
-        action: 'BOOKING_CANCEL',
-        details: `Cancelled booking for "${booking.resource_name}"`,
-        user_name: booking.user_name
-      });
-      io.emit('notification', {
-        message: `${booking.user_name} cancelled booking for "${booking.resource_name}"`,
-        time: new Date()
-      });
       io.emit('booking:cancelled', {
         booking_id: Number(id),
         resource_id: booking.resource_id

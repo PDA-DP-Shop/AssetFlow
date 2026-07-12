@@ -1,5 +1,6 @@
 const express = require('express');
 const db      = require('../db/db');
+const { logActivity } = require('../utils/logger');
 const router  = express.Router();
 
 // ─── POST /api/audits ─────────────────────────────────────────────────────────
@@ -245,34 +246,14 @@ router.patch('/audit-items/:id', async (req, res) => {
 
     if (assetStatusUpdate) {
       await client.query('UPDATE assets SET status = $1::asset_status WHERE id = $2', [assetStatusUpdate, assetId]);
-      
-      // Write log to activity_log
-      await client.query(`
-        INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-        VALUES ($1, 'AUDIT_SYNC_ASSET_STATUS', 'assets', $2, $3)
-      `, [
-        verified_by, 
-        assetId, 
-        `Audit item #${id} marked as ${status}. Synced asset status to ${assetStatusUpdate}.`
-      ]);
     }
+      
+    // Write log to activity_log
+    const logDetails = `Audit item #${id} marked as ${status}.` + (assetStatusUpdate ? ` Synced asset status to ${assetStatusUpdate}.` : '');
+    const io = req.app.get('socketio');
+    await logActivity(verified_by, 'AUDIT_ITEM_VERIFY', logDetails, 'audit_items', id, io);
 
     await client.query('COMMIT');
-
-    // Emit socket notification
-    const io = req.app.get('socketio');
-    if (io) {
-      const auditorName = auditorCheck.rows[0].name;
-      io.emit('activity', {
-        action: 'AUDIT_ITEM_VERIFY',
-        details: `Audit item #${id} marked as ${status}.` + (assetStatusUpdate ? ` Synced asset to ${assetStatusUpdate}.` : ''),
-        user_name: auditorName
-      });
-      io.emit('notification', {
-        message: `${auditorName} marked audit item as ${status}`,
-        time: new Date()
-      });
-    }
 
     return res.status(200).json({
       message: 'Audit item updated successfully.',
@@ -359,27 +340,11 @@ router.patch('/audits/:id/close', async (req, res) => {
     );
 
     // 4. Log the lock action
-    await client.query(
-      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-       VALUES ($1, 'AUDIT_CLOSE', 'audit_cycles', $2, $3)`,
-      [1, id, `Closed and locked audit cycle: "${cycle.name}". Synced ${updateAssetsRes.rowCount} missing assets to Lost.`]
-    );
+    const logDetails = `Closed and locked audit cycle: "${cycle.name}". Synced ${updateAssetsRes.rowCount} missing assets to Lost.`;
+    const io = req.app.get('socketio');
+    await logActivity(1, 'AUDIT_CLOSE', logDetails, 'audit_cycles', id, io);
 
     await client.query('COMMIT');
-
-    // Emit socket notifications
-    const io = req.app.get('socketio');
-    if (io) {
-      io.emit('activity', {
-        action: 'AUDIT_CLOSE',
-        details: `Closed and locked audit cycle: "${cycle.name}". Synced ${updateAssetsRes.rowCount} missing assets to Lost.`,
-        user_name: 'AssetFlow Administrator'
-      });
-      io.emit('notification', {
-        message: `Audit cycle "${cycle.name}" closed`,
-        time: new Date()
-      });
-    }
 
     return res.status(200).json({
       message: 'Audit cycle closed and locked successfully.',

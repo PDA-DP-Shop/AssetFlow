@@ -1,5 +1,6 @@
 const express = require('express');
 const db      = require('../db/db');
+const { logActivity } = require('../utils/logger');
 const router  = express.Router();
 
 // GET /api/transfers — fetch all transfer requests
@@ -113,27 +114,10 @@ router.post('/', async (req, res) => {
 
     // 4. Log the action
     const logDetails = `Submitted transfer request for "${asset.name}" from ${fromUser.name} to ${toUser.name}.`;
-    await client.query(
-      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-       VALUES ($1, 'TRANSFER_REQUEST', 'transfers', $2, $3)`,
-      [finalFromUserId, transfer.id, logDetails]
-    );
+    const io = req.app.get('socketio');
+    await logActivity(finalFromUserId, 'TRANSFER_REQUEST', logDetails, 'transfers', transfer.id, io);
 
     await client.query('COMMIT');
-
-    // Emit Socket notification
-    const io = req.app.get('socketio');
-    if (io) {
-      io.emit('activity', {
-        action: 'TRANSFER_REQUEST',
-        details: logDetails,
-        user_name: 'AssetFlow Administrator'
-      });
-      io.emit('notification', {
-        message: `Transfer requested for "${asset.name}"`,
-        time: new Date()
-      });
-    }
 
     return res.status(201).json({
       message: 'Transfer request submitted successfully.',
@@ -205,27 +189,10 @@ router.post('/:id/approve', async (req, res) => {
 
     // 6. Log activity
     const logDetails = `Approved transfer of "${transfer.asset_name}" to ${transfer.to_user_name}.`;
-    await client.query(
-      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-       VALUES ($1, 'TRANSFER_APPROVE', 'transfers', $2, $3)`,
-      [1, id, logDetails]
-    );
+    const io = req.app.get('socketio');
+    await logActivity(1, 'TRANSFER_APPROVE', logDetails, 'transfers', id, io);
 
     await client.query('COMMIT');
-
-    // Emit Socket notification
-    const io = req.app.get('socketio');
-    if (io) {
-      io.emit('activity', {
-        action: 'TRANSFER_APPROVE',
-        details: logDetails,
-        user_name: 'AssetFlow Administrator'
-      });
-      io.emit('notification', {
-        message: `Transfer approved for "${transfer.asset_name}"`,
-        time: new Date()
-      });
-    }
 
     return res.json({ message: 'Transfer request approved successfully.' });
   } catch (err) {

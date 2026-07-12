@@ -199,13 +199,7 @@ export default function App() {
           )}
 
           {/* ── NOTIFICATIONS ── */}
-          {activeTab === 'notifications' && (
-            <NotificationsPage 
-              notifications={notifications} 
-              logs={logs} 
-              triggerTestNotification={triggerTestNotification} 
-            />
-          )}
+          {activeTab === 'notifications' && <NotificationsPage />}
         </section>
       </main>
 

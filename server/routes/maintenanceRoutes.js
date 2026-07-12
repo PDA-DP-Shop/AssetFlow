@@ -1,5 +1,6 @@
 const express = require('express');
 const db      = require('../db/db');
+const { logActivity } = require('../utils/logger');
 const router  = express.Router();
 
 // POST /api/maintenance-requests — create maintenance request
@@ -33,25 +34,8 @@ router.post('/', async (req, res) => {
 
     // Log action to activity_log
     const logDetails = `Raised maintenance request #${request.id} for "${asset.name}" (Priority: ${request.priority}).`;
-    await db.query(
-      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-       VALUES ($1, 'MAINTENANCE_CREATE', 'maintenance_requests', $2, $3)`,
-      [reported_by || 1, request.id, logDetails]
-    );
-
-    // Emit Socket notification
     const io = req.app.get('socketio');
-    if (io) {
-      io.emit('activity', {
-        action: 'MAINTENANCE_CREATE',
-        details: logDetails,
-        user_name: 'AssetFlow Administrator'
-      });
-      io.emit('notification', {
-        message: `Maintenance raised for "${asset.name}"`,
-        time: new Date()
-      });
-    }
+    await logActivity(reported_by || 1, 'MAINTENANCE_CREATE', logDetails, 'maintenance_requests', request.id, io);
 
     return res.status(201).json({
       message: 'Maintenance request created successfully.',
@@ -132,27 +116,10 @@ router.patch('/:id/status', async (req, res) => {
 
     // 4. Log the state change
     const logDetails = `Maintenance request #${id} updated to status "${status}".` + (assetStatusUpdate ? ` Synced asset to "${assetStatusUpdate}".` : '');
-    await client.query(
-      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-       VALUES ($1, 'MAINTENANCE_STATUS_UPDATE', 'maintenance_requests', $2, $3)`,
-      [request.reported_by || 1, id, logDetails]
-    );
+    const io = req.app.get('socketio');
+    await logActivity(request.reported_by || 1, 'MAINTENANCE_STATUS_UPDATE', logDetails, 'maintenance_requests', id, io);
 
     await client.query('COMMIT');
-
-    // Emit Socket notification
-    const io = req.app.get('socketio');
-    if (io) {
-      io.emit('activity', {
-        action: 'MAINTENANCE_STATUS_UPDATE',
-        details: logDetails,
-        user_name: 'AssetFlow Administrator'
-      });
-      io.emit('notification', {
-        message: `Maintenance request #${id} updated to ${status}`,
-        time: new Date()
-      });
-    }
 
     return res.status(200).json({
       message: 'Maintenance request status updated successfully.',

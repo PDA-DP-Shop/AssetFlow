@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const db = require('./db/db');
 const initializeDatabase = require('./db/init');
+const { logActivity } = require('./utils/logger');
 
 // Route imports
 const authRoutes     = require('./routes/authRoutes');
@@ -22,6 +23,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const transferRoutes = require('./routes/transferRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -69,6 +71,7 @@ app.use('/api/reports',              reportRoutes);
 app.use('/api/categories',           categoryRoutes);
 app.use('/api/employees',            employeeRoutes);
 app.use('/api/transfers',            transferRoutes);
+app.use('/api/notifications',        notificationRoutes);
 app.use('/api',                      auditRoutes);
 
 app.get('/api/health', async (req, res) => {
@@ -152,34 +155,10 @@ async function checkUpcomingBookings() {
         // Set reminder_sent to true in database
         await db.query(`UPDATE bookings SET reminder_sent = true WHERE id = $1`, [row.id]);
 
+        // Log notification to activity_log and notifications tables
         const timeStr = new Date(row.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const reminderMsg = `Reminder: Your booking for "${row.resource_name}" is starting at ${timeStr}.`;
-
-        // Log notification to activity_log
-        await db.query(
-          `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-           VALUES ($1, 'BOOKING_REMINDER', 'bookings', $2, $3)`,
-          [row.user_id, row.id, reminderMsg]
-        );
-
-        // Emit Socket.io notifications
-        io.emit('activity', {
-          action: 'BOOKING_REMINDER',
-          details: reminderMsg,
-          user_name: 'AssetFlow Sentinel'
-        });
-        
-        io.emit('notification', {
-          message: reminderMsg,
-          time: new Date()
-        });
-
-        // Explicitly emit 'notification:new' as requested by the prompt
-        io.emit('notification:new', {
-          id: row.id,
-          message: reminderMsg,
-          time: new Date()
-        });
+        await logActivity(row.user_id, 'BOOKING_REMINDER', reminderMsg, 'bookings', row.id, io);
       }
     }
   } catch (err) {
@@ -204,24 +183,9 @@ async function checkOverdueAllocations() {
         // Update status to 'overdue' in allocations table
         await db.query(`UPDATE allocations SET status = 'overdue' WHERE id = $1`, [row.id]);
         
-        // Log activity
+        // Log activity to activity_log and notifications tables
         const detailsText = `Asset "${row.asset_name}" (${row.asset_tag}) checked out by ${row.user_name} is OVERDUE (expected: ${new Date(row.expected_return_date).toLocaleDateString()}).`;
-        await db.query(
-          `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
-           VALUES ($1, 'ALLOCATION_OVERDUE_FLAG', 'allocations', $2, $3)`,
-          [row.user_id, row.id, detailsText]
-        );
-
-        // Emit Socket notifications to all connected clients
-        io.emit('activity', {
-          action: 'ALLOCATION_OVERDUE_FLAG',
-          details: detailsText,
-          user_name: 'AssetFlow Sentinel'
-        });
-        io.emit('notification', {
-          message: `OVERDUE ALERT: "${row.asset_name}" (${row.asset_tag}) is past return date.`,
-          time: new Date()
-        });
+        await logActivity(row.user_id, 'ALLOCATION_OVERDUE_FLAG', detailsText, 'allocations', row.id, io);
       }
     }
   } catch (err) {
