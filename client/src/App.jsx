@@ -9,6 +9,7 @@ import DashboardPage from './pages/DashboardPage.jsx';
 import OrgSetupPage from './pages/OrgSetupPage.jsx';
 import AllocationsPage from './pages/AllocationsPage.jsx';
 import MaintenancePage from './pages/MaintenancePage.jsx';
+import ReportsPage from './pages/ReportsPage.jsx';
 import { 
   Shield, Layers, Users, Box, AlertTriangle,
   CheckCircle2, Bell, Activity, Cpu, Clock,
@@ -63,6 +64,7 @@ export default function App() {
     { key: 'audits',    icon: <Shield className="w-5 h-5" />, label: 'Compliance Audits'   },
     { key: 'allocations', icon: <ArrowRightLeft className="w-5 h-5" />, label: 'Allocations & Transfers' },
     { key: 'maintenance', icon: <Wrench className="w-5 h-5" />, label: 'Maintenance Board' },
+    { key: 'reports',     icon: <Activity className="w-5 h-5" />, label: 'Reports & Analytics' },
     { key: 'orgsetup',  icon: <Users className="w-5 h-5" />,  label: 'Organization Setup'  },
   ];
 
@@ -170,6 +172,9 @@ export default function App() {
 
           {/* ── MAINTENANCE ── */}
           {activeTab === 'maintenance' && <MaintenancePage />}
+
+          {/* ── REPORTS ── */}
+          {activeTab === 'reports' && <ReportsPage />}
 
           {/* ── ORG SETUP ── */}
           {activeTab === 'orgsetup' && <OrgSetupPage />}
