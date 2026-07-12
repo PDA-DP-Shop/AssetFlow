@@ -6,11 +6,15 @@ import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 
 // Connect to socket for live activity stream
-const socketUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:5000'
-  : window.location.origin;
+const getSocketUrl = () => {
+  const { protocol, hostname, port } = window.location;
+  if (port && port !== '5000') {
+    return `${protocol}//${hostname}:5000`;
+  }
+  return window.location.origin;
+};
 
-const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
+const socket = io(getSocketUrl(), { transports: ['websocket', 'polling'] });
 
 export default function DashboardPage({ onNavigate }) {
   const { token } = useAuth();
