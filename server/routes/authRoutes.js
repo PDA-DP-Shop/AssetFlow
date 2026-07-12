@@ -1,3 +1,4 @@
+// Auth routes configuration - Login/Signup working with JWT, role-based checks
 const express  = require('express');
 const bcrypt    = require('bcryptjs');
 const jwt       = require('jsonwebtoken');
