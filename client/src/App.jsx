@@ -8,10 +8,11 @@ import AuditsPage from './pages/AuditsPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import OrgSetupPage from './pages/OrgSetupPage.jsx';
 import AllocationsPage from './pages/AllocationsPage.jsx';
+import MaintenancePage from './pages/MaintenancePage.jsx';
 import { 
   Shield, Layers, Users, Box, AlertTriangle,
   CheckCircle2, Bell, Activity, Cpu, Clock,
-  ArrowRightLeft, CalendarDays, LogOut, UserCircle2
+  ArrowRightLeft, CalendarDays, LogOut, UserCircle2, Wrench
 } from 'lucide-react';
 
 const socket = io(window.location.origin, { transports: ['websocket', 'polling'] });
@@ -61,6 +62,7 @@ export default function App() {
     { key: 'bookings',  icon: <CalendarDays className="w-5 h-5" />, label: 'Resource Booking' },
     { key: 'audits',    icon: <Shield className="w-5 h-5" />, label: 'Compliance Audits'   },
     { key: 'allocations', icon: <ArrowRightLeft className="w-5 h-5" />, label: 'Allocations & Transfers' },
+    { key: 'maintenance', icon: <Wrench className="w-5 h-5" />, label: 'Maintenance Board' },
     { key: 'orgsetup',  icon: <Users className="w-5 h-5" />,  label: 'Organization Setup'  },
   ];
 
@@ -165,6 +167,9 @@ export default function App() {
 
           {/* ── ALLOCATIONS ── */}
           {activeTab === 'allocations' && <AllocationsPage />}
+
+          {/* ── MAINTENANCE ── */}
+          {activeTab === 'maintenance' && <MaintenancePage />}
 
           {/* ── ORG SETUP ── */}
           {activeTab === 'orgsetup' && <OrgSetupPage />}

@@ -168,4 +168,35 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
+// GET /api/maintenance-requests — get all maintenance requests with asset details
+router.get('/', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        mr.id,
+        mr.asset_id,
+        mr.reported_by,
+        mr.description,
+        mr.priority,
+        mr.status,
+        mr.cost,
+        mr.scheduled_date,
+        mr.completed_date,
+        mr.created_at,
+        a.name AS asset_name,
+        a.asset_tag,
+        u.name AS technician_name
+      FROM maintenance_requests mr
+      JOIN assets a ON mr.asset_id = a.id
+      LEFT JOIN users u ON mr.reported_by = u.id
+      ORDER BY mr.created_at DESC;
+    `;
+    const result = await db.query(query);
+    return res.json({ requests: result.rows });
+  } catch (err) {
+    console.error('[GET /api/maintenance-requests]', err.message);
+    return res.status(500).json({ error: 'Failed to fetch maintenance requests.' });
+  }
+});
+
 module.exports = router;
