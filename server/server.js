@@ -12,6 +12,7 @@ const initializeDatabase = require('./db/init');
 const authRoutes = require('./routes/authRoutes');
 const assetRoutes = require('./routes/assetRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const auditRoutes = require('./routes/auditRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -48,6 +49,7 @@ io.on('connection', (socket) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api', auditRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {
