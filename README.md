@@ -2,7 +2,7 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=FFFFFF&height=220&section=header&text=AssetFlow&fontSize=70&fontColor=714B67&animation=fadeIn&fontAlignY=32&desc=Enterprise%20Asset%20%26%20Resource%20Management%20System&descAlignY=54&descColor=714B67&descSize=18" width="100%"/>
 
-<img src=".client/public/assets/logo-animated.svg" width="150" height="150" alt="AssetFlow animated logo"/>
+<img src="client/public/assets" width="150" height="150" alt="AssetFlow animated logo"/>
 
 <img src="https://readme-typing-svg.demolab.com?font=Poppins&size=22&duration=3000&pause=800&color=714B67&center=true&vCenter=true&width=700&lines=Stop+tracking+assets+on+spreadsheets.;One+dashboard+for+every+laptop%2C+room%2C+and+forklift.;No+double+allocations.+No+double+bookings.;Built+in+8+hours+for+the+Odoo+Hackathon+2026." alt="Typing SVG" />
 
