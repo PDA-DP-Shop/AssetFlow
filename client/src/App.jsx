@@ -10,8 +10,9 @@ import OrgSetupPage from './pages/OrgSetupPage.jsx';
 import AllocationsPage from './pages/AllocationsPage.jsx';
 import MaintenancePage from './pages/MaintenancePage.jsx';
 import ReportsPage from './pages/ReportsPage.jsx';
+import NotificationsPage from './pages/NotificationsPage.jsx';
 import { 
-  Shield, Layers, Users, Box, AlertTriangle,
+  Shield, Layers, Users, Box, AlertTriangle, ShieldAlert,
   CheckCircle2, Bell, Activity, Cpu, Clock,
   ArrowRightLeft, CalendarDays, LogOut, UserCircle2, Wrench
 } from 'lucide-react';
@@ -58,15 +59,21 @@ export default function App() {
   };
 
   const navItems = [
-    { key: 'dashboard', icon: <Cpu className="w-5 h-5" />,    label: 'Operational Center' },
-    { key: 'assets',    icon: <Box className="w-5 h-5" />,    label: 'Asset Ledger'        },
-    { key: 'bookings',  icon: <CalendarDays className="w-5 h-5" />, label: 'Resource Booking' },
-    { key: 'audits',    icon: <Shield className="w-5 h-5" />, label: 'Compliance Audits'   },
-    { key: 'allocations', icon: <ArrowRightLeft className="w-5 h-5" />, label: 'Allocations & Transfers' },
-    { key: 'maintenance', icon: <Wrench className="w-5 h-5" />, label: 'Maintenance Board' },
-    { key: 'reports',     icon: <Activity className="w-5 h-5" />, label: 'Reports & Analytics' },
-    { key: 'orgsetup',  icon: <Users className="w-5 h-5" />,  label: 'Organization Setup'  },
+    { key: 'dashboard',     icon: <Cpu className="w-5 h-5" />,            label: 'Dashboard' },
+    { key: 'orgsetup',      icon: <Users className="w-5 h-5" />,          label: 'Organization setup' },
+    { key: 'assets',        icon: <Box className="w-5 h-5" />,            label: 'Assets' },
+    { key: 'allocations',   icon: <ArrowRightLeft className="w-5 h-5" />,  label: 'Allocation & Transfer' },
+    { key: 'bookings',      icon: <CalendarDays className="w-5 h-5" />,    label: 'Resource Booking' },
+    { key: 'maintenance',   icon: <Wrench className="w-5 h-5" />,          label: 'Maintenance' },
+    { key: 'audits',        icon: <Shield className="w-5 h-5" />,          label: 'Audit' },
+    { key: 'reports',       icon: <Activity className="w-5 h-5" />,        label: 'Reports' },
+    { key: 'notifications', icon: <Bell className="w-5 h-5" />,            label: 'Notifications' },
   ];
+
+  const visibleNavItems = navItems.filter(item => {
+    if (item.key === 'orgsetup') return user?.role === 'Admin';
+    return true;
+  });
 
   return (
     <div className="min-h-screen flex flex-col font-sans" style={{ background: '#f5f3ff' }}>
@@ -120,7 +127,7 @@ export default function App() {
 
         {/* Sidebar */}
         <aside className="lg:col-span-1 flex flex-col gap-1">
-          {navItems.map(item => (
+          {visibleNavItems.map(item => (
             <button key={item.key} onClick={() => setActiveTab(item.key)}
               className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-150 flex items-center gap-3 text-sm font-medium
                 ${activeTab === item.key
@@ -177,7 +184,28 @@ export default function App() {
           {activeTab === 'reports' && <ReportsPage />}
 
           {/* ── ORG SETUP ── */}
-          {activeTab === 'orgsetup' && <OrgSetupPage />}
+          {activeTab === 'orgsetup' && (
+            user?.role === 'Admin' ? (
+              <OrgSetupPage />
+            ) : (
+              <div className="bg-white border border-red-250 rounded-2xl p-12 text-center space-y-3 shadow-xs">
+                <ShieldAlert className="w-12 h-12 text-red-500 mx-auto" />
+                <h3 className="text-base font-bold text-red-900 font-display">Access Denied</h3>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                  This section is restricted. You must have Administrator privileges to inspect or modify departments, categories, and roles.
+                </p>
+              </div>
+            )
+          )}
+
+          {/* ── NOTIFICATIONS ── */}
+          {activeTab === 'notifications' && (
+            <NotificationsPage 
+              notifications={notifications} 
+              logs={logs} 
+              triggerTestNotification={triggerTestNotification} 
+            />
+          )}
         </section>
       </main>
 

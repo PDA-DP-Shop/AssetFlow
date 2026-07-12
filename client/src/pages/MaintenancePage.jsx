@@ -14,13 +14,15 @@ const PRIORITY_COLORS = {
 };
 
 export default function MaintenancePage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const isAssetManager = user?.role === 'Admin' || user?.role === 'Manager';
 
   // Fetch all maintenance requests
   const fetchRequests = useCallback(async () => {
@@ -46,12 +48,20 @@ export default function MaintenancePage() {
 
   // Native HTML5 Drag and Drop Handlers
   const handleDragStart = (e, requestId) => {
+    if (!isAssetManager) {
+      e.preventDefault();
+      return;
+    }
     e.dataTransfer.setData('text/plain', requestId.toString());
     e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDrop = async (e, targetStatus) => {
     e.preventDefault();
+    if (!isAssetManager) {
+      setError('You are not authorized to update maintenance status.');
+      return;
+    }
     const requestIdStr = e.dataTransfer.getData('text/plain');
     if (!requestIdStr) return;
     const requestId = Number(requestIdStr);
@@ -106,6 +116,12 @@ export default function MaintenancePage() {
       </div>
 
       {/* Messages */}
+      {!isAssetManager && (
+        <div className="flex items-start gap-2.5 rounded-xl bg-amber-50 border border-amber-250 px-4 py-3 text-xs text-amber-800">
+          <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+          <span><strong>Read-Only Mode:</strong> You must be an Asset Manager or Administrator to move maintenance request cards or update operational statuses.</span>
+        </div>
+      )}
       {error && (
         <div className="flex items-start gap-2.5 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">
           <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
@@ -157,9 +173,10 @@ export default function MaintenancePage() {
                     return (
                       <div
                         key={req.id}
-                        draggable={!isUpdating}
+                        draggable={isAssetManager && !isUpdating}
                         onDragStart={e => handleDragStart(e, req.id)}
-                        className={`bg-white border border-violet-100 rounded-xl p-3.5 shadow-2xs hover:shadow-xs transition-all relative cursor-grab active:cursor-grabbing
+                        className={`bg-white border border-violet-100 rounded-xl p-3.5 shadow-2xs hover:shadow-xs transition-all relative
+                          ${isAssetManager ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}
                           ${isUpdating ? 'opacity-50 pointer-events-none' : ''}`}
                       >
                         {/* Upper Details */}
