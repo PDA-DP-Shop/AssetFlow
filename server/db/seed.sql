@@ -20,11 +20,11 @@ ON CONFLICT (name) DO NOTHING;
 
 -- 3. Users (Password hashes correspond to 'AssetFlow@2026')
 INSERT INTO users (name, email, password_hash, role, department_id) VALUES
-('AssetFlow Administrator', 'admin@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'admin', 2),
-('John Auditor', 'auditor@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'auditor', 2),
-('Alice Vance', 'alice@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'manager', 1),
-('Emily Employee', 'emily@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'employee', 1),
-('David Miller', 'david@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'manager', 4)
+('AssetFlow Administrator', 'admin@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Admin', 2),
+('John Auditor', 'auditor@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Auditor', 2),
+('Alice Vance', 'alice@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Manager', 1),
+('Emily Employee', 'emily@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Employee', 1),
+('David Miller', 'david@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Manager', 4)
 ON CONFLICT (email) DO NOTHING;
 
 -- 4. Assets
@@ -50,16 +50,16 @@ INSERT INTO transfers (asset_id, from_department_id, to_department_id, status, a
 ON CONFLICT DO NOTHING;
 
 -- 7. Resources
-INSERT INTO resources (name, type, description, capacity) VALUES
-('Conference Room Alpha', 'conference_room', 'Main boardroom equipped with web conferencing and 82" screen', 16),
-('Staging Rack 3B', 'server_rack', 'Dedicated server rack partition for testing web servers', 10),
-('iOS Testing Kit 1', 'testing_device', 'Bundle containing Apple Watch, iPad, and iPhone models', 1)
+INSERT INTO resources (name, type, location, capacity) VALUES
+('Conference Room Alpha', 'conference_room', 'HQ Building A, Floor 3', 16),
+('Staging Rack 3B', 'server_rack', 'Server Room A', 10),
+('iOS Testing Kit 1', 'testing_device', 'Mobile Test Lab', 1)
 ON CONFLICT DO NOTHING;
 
 -- 8. Bookings
-INSERT INTO bookings (resource_id, user_id, start_time, end_time, purpose, status) VALUES
-(1, 3, CURRENT_TIMESTAMP + INTERVAL '1 hour', CURRENT_TIMESTAMP + INTERVAL '2 hours', 'Sprint Review Planning', 'confirmed'),
-(2, 4, CURRENT_TIMESTAMP + INTERVAL '1 day', CURRENT_TIMESTAMP + INTERVAL '3 days', 'Server benchmark runs', 'confirmed')
+INSERT INTO bookings (resource_id, booked_by, start_time, end_time, purpose, status) VALUES
+(1, 3, CURRENT_TIMESTAMP + INTERVAL '1 hour',  CURRENT_TIMESTAMP + INTERVAL '2 hours', 'Sprint Review Planning', 'Upcoming'),
+(2, 4, CURRENT_TIMESTAMP + INTERVAL '1 day',   CURRENT_TIMESTAMP + INTERVAL '3 days',  'Server benchmark runs',  'Upcoming')
 ON CONFLICT DO NOTHING;
 
 -- 9. Maintenance Requests
@@ -68,15 +68,21 @@ INSERT INTO maintenance_requests (asset_id, reported_by, description, priority, 
 ON CONFLICT DO NOTHING;
 
 -- 10. Audit Cycles
-INSERT INTO audit_cycles (name, start_date, end_date, status) VALUES
-('Q3 Hardware Audit', '2026-07-01', '2026-07-31', 'active')
+INSERT INTO audit_cycles (name, scope_department_id, scope_location, start_date, end_date, status) VALUES
+('Q3 Hardware Audit', 1, 'Main Office Floor 2', '2026-07-01', '2026-07-31', 'Open')
 ON CONFLICT (name) DO NOTHING;
 
 -- 11. Audit Items
-INSERT INTO audit_items (audit_cycle_id, asset_id, status, audited_by, audited_at, notes) VALUES
-(1, 1, 'verified', 2, CURRENT_TIMESTAMP, 'Physically inspected. In excellent condition.'),
-(1, 2, 'pending', NULL, NULL, NULL),
-(1, 3, 'damaged', 2, CURRENT_TIMESTAMP - INTERVAL '1 day', 'Requires port replacement.')
+INSERT INTO audit_items (audit_cycle_id, asset_id, expected_location, status, verified_by, verified_at, notes) VALUES
+(1, 1, 'Main Office Floor 2', 'Verified',  2, CURRENT_TIMESTAMP,                       'Physically inspected. In excellent condition.'),
+(1, 2, 'Main Office Floor 2', 'Pending',   NULL, NULL,                                 NULL),
+(1, 3, 'Server Room A',       'Damaged',   2, CURRENT_TIMESTAMP - INTERVAL '1 day',    'Requires port replacement.')
+ON CONFLICT DO NOTHING;
+
+-- 11a. Audit Auditors
+INSERT INTO audit_auditors (audit_cycle_id, user_id) VALUES
+(1, 2),   -- John Auditor assigned to Q3 Hardware Audit
+(1, 3)    -- Alice Vance (manager) also assigned
 ON CONFLICT DO NOTHING;
 
 -- 12. Activity Log

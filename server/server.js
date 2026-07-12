@@ -8,6 +8,9 @@ require('dotenv').config();
 const db = require('./db/db');
 const initializeDatabase = require('./db/init');
 
+// Route imports
+const authRoutes = require('./routes/authRoutes');
+
 const app = express();
 const server = http.createServer(app);
 
@@ -40,6 +43,8 @@ io.on('connection', (socket) => {
 });
 
 // API Routes
+app.use('/api/auth', authRoutes);
+
 app.get('/api/health', async (req, res) => {
   try {
     const result = await db.query('SELECT NOW()');
