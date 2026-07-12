@@ -90,7 +90,9 @@ CREATE TABLE IF NOT EXISTS allocations (
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     allocated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     returned_at TIMESTAMP,
+    expected_return_date DATE,
     notes TEXT,
+    return_notes TEXT,
     status VARCHAR(50) DEFAULT 'active' -- e.g., active, returned
 );
 
