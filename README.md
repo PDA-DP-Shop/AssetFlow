@@ -2,9 +2,7 @@
 
 <img src="client/public/logo.png" alt="Briefcase" width="80" height="80" /><br>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=FFFFFF&height=220&section=header&text=AssetFlow&fontSize=70&fontColor=714B67&animation=fadeIn&fontAlignY=38&desc=Enterprise%20Asset%20%26%20Resource%20Management%20System&descAlignY=58&descColor=714B67&descSize=18" width="100%"/>
-
-<img src="https://readme-typing-svg.demolab.com?font=Poppins&size=22&duration=3000&pause=800&color=714B67&center=true&vCenter=true&width=650&lines=Stop+tracking+assets+on+spreadsheets.;Track+every+laptop%2C+room%2C+and+forklift+in+real+time.;Built+in+8+hours+for+the+Odoo+Hackathon+2026." alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=Poppins&size=22&duration=3000&pause=800&color=714B67&center=true&vCenter=true&width=650&lines=AssetFlow" alt="Typing SVG" />
 
 <br/>
 
