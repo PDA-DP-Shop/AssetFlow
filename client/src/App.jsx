@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import { useAuth } from './context/AuthContext.jsx';
+import AuthPage from './pages/AuthPage.jsx';
 import { 
   Shield, 
   Layers, 
@@ -14,7 +16,9 @@ import {
   Cpu,
   Clock,
   ArrowRightLeft,
-  CalendarDays
+  CalendarDays,
+  LogOut,
+  UserCircle2
 } from 'lucide-react';
 
 // Socket connection
@@ -23,6 +27,7 @@ const socket = io(window.location.origin, {
 });
 
 export default function App() {
+  const { isAuthenticated, user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [assets, setAssets] = useState([]);
   const [logs, setLogs] = useState([]);
@@ -96,6 +101,11 @@ export default function App() {
     };
   }, []);
 
+  // Gate: show auth page if not logged in
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
+
   const triggerTestNotification = () => {
     // Make request to server to broadcast a socket message
     fetch('/api/test-broadcast', {
@@ -130,8 +140,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* Live Database Indicators */}
-        <div className="flex items-center space-x-6 text-xs">
+        {/* Live Database Indicators + User Chip */}
+        <div className="flex items-center space-x-4 text-xs">
           <div className="hidden md:flex items-center space-x-2">
             <span className="text-slate-400">Database connection:</span>
             <span className="font-semibold text-cyan-400 flex items-center space-x-1.5">
@@ -141,11 +151,27 @@ export default function App() {
           </div>
 
           <div className="flex items-center space-x-2">
-            <span className="text-slate-400">WebSocket connection:</span>
+            <span className="text-slate-400">WebSocket:</span>
             <span className={`font-semibold flex items-center ${isConnected ? 'text-emerald-400' : 'text-rose-400'}`}>
               <span className={`w-2 h-2 rounded-full mr-1.5 ${isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500'}`}></span>
-              {isConnected ? 'Connected' : 'Disconnected'}
+              {isConnected ? 'Live' : 'Off'}
             </span>
+          </div>
+
+          {/* User chip */}
+          <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-white/10">
+            <div className="flex items-center gap-2 bg-slate-800/60 border border-white/10 rounded-xl px-3 py-1.5">
+              <UserCircle2 className="w-4 h-4 text-indigo-400" />
+              <span className="text-slate-300 font-medium text-xs">{user?.name || 'User'}</span>
+              <span className="px-1.5 py-0.5 rounded-md bg-indigo-500/15 text-indigo-400 text-[9px] font-bold uppercase tracking-wider">{user?.role || 'Employee'}</span>
+            </div>
+            <button
+              onClick={logout}
+              title="Sign out"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>
