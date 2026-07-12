@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+  
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  
+  --color-bg-main: var(--bg-main);
+  --color-bg-card: var(--bg-card);
+  --color-border-card: var(--border-card);
+  
+  /* Status Colors */
+  --color-status-available: var(--status-available);
+  --color-status-allocated: var(--status-allocated);
+  --color-status-maintenance: var(--status-maintenance);
+  --color-status-retired: var(--status-retired);
+  
+  --animate-shimmer: shimmer 2s infinite;
+  --animate-fade-in: fadeIn 0.3s ease-out;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+:root {
+  --primary: #6366f1;       /* Indigo 500 */
+  --primary-hover: #4f46e5; /* Indigo 600 */
+  --secondary: #0f172a;     /* Slate 900 */
+  --accent: #06b6d4;        /* Cyan 500 */
+  
+  --bg-main: #0b0f19;       /* Modern Deep Navy Dark Mode Base */
+  --bg-card: rgba(22, 30, 49, 0.7); /* Translucent premium dark cards */
+  --border-card: rgba(255, 255, 255, 0.08);
+  
+  /* Asset statuses */
+  --status-available: #10b981;   /* Emerald 500 */
+  --status-allocated: #3b82f6;   /* Blue 500 */
+  --status-maintenance: #f59e0b; /* Amber 500 */
+  --status-retired: #ef4444;     /* Rose 500 */
+}
+
+/* Glassmorphism custom styling utilities */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-card);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  background-color: var(--bg-main);
+  color: #f1f5f9;
+  min-height: 100vh;
+}
