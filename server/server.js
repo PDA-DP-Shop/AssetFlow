@@ -132,6 +132,48 @@ if (process.env.NODE_ENV === 'production') {
 // Database and Server Boot
 const PORT = process.env.PORT || 5000;
 
+// Background Check for Overdue Allocations
+async function checkOverdueAllocations() {
+  try {
+    const overdueRes = await db.query(
+      `SELECT al.id, al.asset_id, al.user_id, al.expected_return_date, a.name AS asset_name, a.asset_tag, u.name AS user_name
+       FROM allocations al
+       JOIN assets a ON al.asset_id = a.id
+       JOIN users u ON al.user_id = u.id
+       WHERE al.status = 'active' AND al.expected_return_date < CURRENT_DATE`
+    );
+
+    if (overdueRes.rowCount > 0) {
+      console.log(`[Overdue Check] Found ${overdueRes.rowCount} overdue allocations. Flagging...`);
+      for (const row of overdueRes.rows) {
+        // Update status to 'overdue' in allocations table
+        await db.query(`UPDATE allocations SET status = 'overdue' WHERE id = $1`, [row.id]);
+        
+        // Log activity
+        const detailsText = `Asset "${row.asset_name}" (${row.asset_tag}) checked out by ${row.user_name} is OVERDUE (expected: ${new Date(row.expected_return_date).toLocaleDateString()}).`;
+        await db.query(
+          `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
+           VALUES ($1, 'ALLOCATION_OVERDUE_FLAG', 'allocations', $2, $3)`,
+          [row.user_id, row.id, detailsText]
+        );
+
+        // Emit Socket notifications to all connected clients
+        io.emit('activity', {
+          action: 'ALLOCATION_OVERDUE_FLAG',
+          details: detailsText,
+          user_name: 'AssetFlow Sentinel'
+        });
+        io.emit('notification', {
+          message: `OVERDUE ALERT: "${row.asset_name}" (${row.asset_tag}) is past return date.`,
+          time: new Date()
+        });
+      }
+    }
+  } catch (err) {
+    console.error('[checkOverdueAllocations error]', err.message);
+  }
+}
+
 async function startServer() {
   try {
     console.log('Booting AssetFlow server configurations...');
@@ -143,6 +185,12 @@ async function startServer() {
       console.log(`AssetFlow Server running on port ${PORT}`);
       console.log(`Database is connected and schema verified.`);
       console.log(`================================================`);
+      
+      // Run once immediately on start
+      checkOverdueAllocations();
+
+      // Schedule to run every 2 minutes
+      setInterval(checkOverdueAllocations, 2 * 60 * 1000);
     });
   } catch (err) {
     console.error('FAILED to start AssetFlow server:', err.message);

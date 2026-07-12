@@ -23,8 +23,8 @@ router.get('/summary', async (req, res) => {
     // 6. Under Maintenance
     const maintenanceRes = await db.query("SELECT COUNT(*)::int AS count FROM assets WHERE status = 'Under Maintenance'");
     
-    // 7. Overdue Returns (Allocations active for more than 14 days)
-    const overdueRes = await db.query("SELECT COUNT(*)::int AS count FROM allocations WHERE status = 'active' AND allocated_at < NOW() - INTERVAL '14 days'");
+    // 7. Overdue Returns (Allocations marked overdue or active with past expected return dates)
+    const overdueRes = await db.query("SELECT COUNT(*)::int AS count FROM allocations WHERE status = 'overdue' OR (status = 'active' AND expected_return_date < CURRENT_DATE)");
 
     // 8. Recent Activity Feed
     const activityRes = await db.query(`

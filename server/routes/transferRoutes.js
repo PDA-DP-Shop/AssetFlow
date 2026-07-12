@@ -63,7 +63,7 @@ router.post('/', async (req, res) => {
     let finalFromUserId = from_user_id;
     if (!finalFromUserId) {
       const activeAlloc = await client.query(
-        `SELECT user_id FROM allocations WHERE asset_id = $1 AND status = 'active' ORDER BY allocated_at DESC LIMIT 1`,
+        `SELECT user_id FROM allocations WHERE asset_id = $1 AND status IN ('active', 'overdue') ORDER BY allocated_at DESC LIMIT 1`,
         [asset_id]
       );
       if (activeAlloc.rowCount > 0) {
@@ -183,9 +183,8 @@ router.post('/:id/approve', async (req, res) => {
 
     // 3. Mark previous active allocations as returned
     await client.query(
-      `UPDATE allocations 
-       SET returned_at = CURRENT_TIMESTAMP, status = 'returned', return_notes = 'Transferred to another employee'
-       WHERE asset_id = $1 AND status = 'active'`,
+      `UPDATE allocations        SET returned_at = CURRENT_TIMESTAMP, status = 'returned', return_notes = 'Transferred to another employee'
+        WHERE asset_id = $1 AND status IN ('active', 'overdue')`,
       [transfer.asset_id]
     );
 

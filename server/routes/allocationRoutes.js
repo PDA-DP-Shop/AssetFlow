@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
         `SELECT u.name 
          FROM allocations al
          JOIN users u ON al.user_id = u.id
-         WHERE al.asset_id = $1 AND al.status = 'active'
+          WHERE al.asset_id = $1 AND al.status IN ('active', 'overdue')
          ORDER BY al.allocated_at DESC
          LIMIT 1`,
         [asset_id]
@@ -125,7 +125,7 @@ router.post('/:id/return', async (req, res) => {
        FROM allocations al
        JOIN assets a ON al.asset_id = a.id
        JOIN users u ON al.user_id = u.id
-       WHERE al.id = $1 AND al.status = 'active'`,
+       WHERE al.id = $1 AND al.status IN ('active', 'overdue')`,
       [id]
     );
     if (allocCheck.rowCount === 0) {
