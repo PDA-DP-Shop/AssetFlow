@@ -1,4 +1,4 @@
-# AssetFlow Monorepo
+# AssetFlow
 
 AssetFlow is a modern asset management application structured as a monorepo.
 
