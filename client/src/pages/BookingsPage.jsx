@@ -4,6 +4,7 @@ import {
 } from 'lucide-react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
+import CustomSelect from '../components/CustomSelect';
 
 // Connect to socket for live updates
 const socket = io(window.location.origin, { transports: ['websocket', 'polling'] });
@@ -229,17 +230,12 @@ export default function BookingsPage() {
           {/* Resource select */}
           <div className="w-full sm:w-64 space-y-1">
             <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Select Space / Resource</label>
-            <select
+            <CustomSelect
               value={selectedResourceId}
               onChange={e => setSelectedResourceId(e.target.value)}
-              className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-sm text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-            >
-              {resources.map(r => (
-                <option key={r.id} value={r.id}>
-                  {r.name} ({r.location})
-                </option>
-              ))}
-            </select>
+              placeholder="Select a space or resource..."
+              options={resources.map(r => ({ value: String(r.id), label: `${r.name} (${r.location})` }))}
+            />
           </div>
 
           {/* Date Picker */}

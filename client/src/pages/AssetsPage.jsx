@@ -5,6 +5,7 @@ import {
   Clock, MapPin, Hash, Loader2, User, Info, FileText
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import CustomSelect from '../components/CustomSelect';
 
 // ── Status config ─────────────────────────────────────────────────────────────
 const STATUS_STYLES = {
@@ -133,17 +134,27 @@ function RegisterAssetModal({ onClose, onRegistered }) {
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Category *</label>
-              <select value={form.category_id} onChange={e => set('category_id', e.target.value)} required className={fieldCls}>
-                <option value="">Select…</option>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+              <CustomSelect
+                value={form.category_id}
+                onChange={e => set('category_id', e.target.value)}
+                placeholder="Select category..."
+                options={[
+                  { value: '', label: 'Select…' },
+                  ...categories.map(c => ({ value: String(c.id), label: c.name }))
+                ]}
+              />
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Department</label>
-              <select value={form.department_id} onChange={e => set('department_id', e.target.value)} className={fieldCls}>
-                <option value="">None</option>
-                {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-              </select>
+              <CustomSelect
+                value={form.department_id}
+                onChange={e => set('department_id', e.target.value)}
+                placeholder="None"
+                options={[
+                  { value: '', label: 'None' },
+                  ...departments.map(d => ({ value: String(d.id), label: d.name }))
+                ]}
+              />
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Location</label>
@@ -151,9 +162,11 @@ function RegisterAssetModal({ onClose, onRegistered }) {
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Condition</label>
-              <select value={form.condition} onChange={e => set('condition', e.target.value)} className={fieldCls}>
-                {['New', 'Good', 'Fair', 'Poor'].map(c => <option key={c}>{c}</option>)}
-              </select>
+              <CustomSelect
+                value={form.condition}
+                onChange={e => set('condition', e.target.value)}
+                options={['New', 'Good', 'Fair', 'Poor']}
+              />
             </div>
             <div className="col-span-2 space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Acquisition Cost (₹)</label>

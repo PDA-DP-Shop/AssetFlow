@@ -3,6 +3,7 @@ import {
   ArrowRightLeft, AlertTriangle, CheckCircle, RefreshCw, Calendar, FileText, UserPlus, Info, Loader2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import CustomSelect from '../components/CustomSelect';
 
 export default function AllocationsPage() {
   const { token } = useAuth();
@@ -226,18 +227,12 @@ export default function AllocationsPage() {
       <div className="bg-white border border-violet-100 rounded-2xl p-5 shadow-sm shadow-violet-100 space-y-4">
         <div className="space-y-1">
           <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500 block">Select Asset</label>
-          <select
+          <CustomSelect
             value={selectedAssetId}
             onChange={e => setSelectedAssetId(e.target.value)}
-            className="w-full bg-violet-50 border border-violet-200 rounded-xl px-4 py-3 text-sm text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50 shadow-xs"
-          >
-            <option value="">-- Choose an asset from the ledger --</option>
-            {assets.map(a => (
-              <option key={a.id} value={a.id}>
-                {a.name} ({a.asset_tag} - {a.status})
-              </option>
-            ))}
-          </select>
+            placeholder="-- Choose an asset from the ledger --"
+            options={assets.map(a => ({ value: String(a.id), label: `${a.name} (${a.asset_tag} - ${a.status})` }))}
+          />
         </div>
 
         {/* ── Red Banner when already allocated ── */}
@@ -280,19 +275,14 @@ export default function AllocationsPage() {
                 {/* To Employee */}
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Target Custodian (To)</label>
-                  <select
+                  <CustomSelect
                     value={toEmployeeId}
                     onChange={e => setToEmployeeId(e.target.value)}
-                    required
-                    className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-xs text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-                  >
-                    <option value="">Select Target Employee...</option>
-                    {employees
-                      .filter(emp => !activeAllocation || emp.id !== activeAllocation.user_id) // hide current holder
-                      .map(emp => (
-                        <option key={emp.id} value={emp.id}>{emp.name} ({emp.role})</option>
-                      ))}
-                  </select>
+                    placeholder="Select Target Employee..."
+                    options={employees
+                      .filter(emp => !activeAllocation || emp.id !== activeAllocation.user_id)
+                      .map(emp => ({ value: String(emp.id), label: `${emp.name} (${emp.role})` }))}
+                  />
                 </div>
 
                 {/* Reason Textarea */}
@@ -329,17 +319,12 @@ export default function AllocationsPage() {
                 {/* Target Employee */}
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Target Custodian</label>
-                  <select
+                  <CustomSelect
                     value={allocEmployeeId}
                     onChange={e => setAllocEmployeeId(e.target.value)}
-                    required
-                    className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-xs text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
-                  >
-                    <option value="">Select Custodian...</option>
-                    {employees.map(emp => (
-                      <option key={emp.id} value={emp.id}>{emp.name} ({emp.role})</option>
-                    ))}
-                  </select>
+                    placeholder="Select Custodian..."
+                    options={employees.map(emp => ({ value: String(emp.id), label: `${emp.name} (${emp.role})` }))}
+                  />
                 </div>
 
                 {/* Expected Return Date */}

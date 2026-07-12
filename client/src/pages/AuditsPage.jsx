@@ -3,6 +3,7 @@ import {
   Shield, Calendar, Users, CheckCircle, XCircle, AlertTriangle, Clock, RefreshCw, X, Loader2, ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import CustomSelect from '../components/CustomSelect';
 
 const ITEM_STATUS_STYLES = {
   'Pending':  { pill: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-400' },
@@ -177,17 +178,13 @@ export default function AuditsPage() {
           <p className="text-xs text-slate-500 mt-0.5">Review physical asset locations, check for discrepancies, and close audit runs</p>
         </div>
         <div className="flex items-center gap-2">
-          <select
+          <CustomSelect
             value={selectedCycleId}
             onChange={e => setSelectedCycleId(e.target.value)}
-            className="bg-white border border-violet-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-violet-400/50 shadow-sm"
-          >
-            {cycles.map(c => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c.status})
-              </option>
-            ))}
-          </select>
+            placeholder="Select audit cycle..."
+            options={cycles.map(c => ({ value: String(c.id), label: `${c.name} (${c.status})` }))}
+            className="w-56"
+          />
           <button
             onClick={fetchCycleData}
             title="Refresh details"
@@ -351,17 +348,18 @@ export default function AuditsPage() {
                       <div className="flex items-center gap-2">
                         {getStatusPill(item.status)}
                         {cycleDetails?.status === 'Open' && (
-                          <select
-                            disabled={updatingItemId === item.id}
+                          <CustomSelect
                             value={item.status}
                             onChange={e => handleStatusSelect(item, e.target.value)}
-                            className="bg-transparent border-0 hover:bg-violet-50 p-1 rounded cursor-pointer text-[10px] font-semibold text-violet-600 focus:outline-none"
-                          >
-                            <option value="Pending" disabled>Update…</option>
-                            <option value="Verified">Verified</option>
-                            <option value="Missing">Missing</option>
-                            <option value="Damaged">Damaged</option>
-                          </select>
+                            disabled={updatingItemId === item.id}
+                            placeholder="Update…"
+                            options={[
+                              { value: 'Verified', label: 'Verified' },
+                              { value: 'Missing', label: 'Missing' },
+                              { value: 'Damaged', label: 'Damaged' }
+                            ]}
+                            className="w-32"
+                          />
                         )}
                       </div>
                     </td>
