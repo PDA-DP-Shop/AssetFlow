@@ -7,7 +7,11 @@ import { useAuth } from '../context/AuthContext';
 import CustomSelect from '../components/CustomSelect';
 
 // Connect to socket for live updates
-const socket = io(window.location.origin, { transports: ['websocket', 'polling'] });
+const socketUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'
+  : window.location.origin;
+
+const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
 
 export default function BookingsPage() {
   const { token, user } = useAuth();

@@ -17,7 +17,11 @@ import {
   ArrowRightLeft, CalendarDays, LogOut, UserCircle2, Wrench
 } from 'lucide-react';
 
-const socket = io(window.location.origin, { transports: ['websocket', 'polling'] });
+const socketUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'
+  : window.location.origin;
+
+const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
 
 export default function App() {
   const { isAuthenticated, user, logout } = useAuth();
