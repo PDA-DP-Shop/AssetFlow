@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     end_time    TIMESTAMP NOT NULL,
     purpose     VARCHAR(255),
     status      booking_status DEFAULT 'Upcoming',
+    reminder_sent BOOLEAN DEFAULT false,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT bookings_end_after_start CHECK (end_time > start_time)
 );

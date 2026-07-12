@@ -132,6 +132,61 @@ if (process.env.NODE_ENV === 'production') {
 // Database and Server Boot
 const PORT = process.env.PORT || 5000;
 
+// Background Check for Bookings starting within 15 minutes
+async function checkUpcomingBookings() {
+  try {
+    const upcomingRes = await db.query(
+      `SELECT b.id, b.start_time, b.purpose, r.name AS resource_name, u.name AS user_name, u.id AS user_id
+       FROM bookings b
+       JOIN resources r ON b.resource_id = r.id
+       JOIN users u ON b.booked_by = u.id
+       WHERE b.status = 'Upcoming' 
+         AND b.reminder_sent = false 
+         AND b.start_time <= NOW() + INTERVAL '15 minutes'
+         AND b.start_time >= NOW()`
+    );
+
+    if (upcomingRes.rowCount > 0) {
+      console.log(`[Booking Reminder Check] Found ${upcomingRes.rowCount} bookings starting within 15 minutes. Sending notifications...`);
+      for (const row of upcomingRes.rows) {
+        // Set reminder_sent to true in database
+        await db.query(`UPDATE bookings SET reminder_sent = true WHERE id = $1`, [row.id]);
+
+        const timeStr = new Date(row.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const reminderMsg = `Reminder: Your booking for "${row.resource_name}" is starting at ${timeStr}.`;
+
+        // Log notification to activity_log
+        await db.query(
+          `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
+           VALUES ($1, 'BOOKING_REMINDER', 'bookings', $2, $3)`,
+          [row.user_id, row.id, reminderMsg]
+        );
+
+        // Emit Socket.io notifications
+        io.emit('activity', {
+          action: 'BOOKING_REMINDER',
+          details: reminderMsg,
+          user_name: 'AssetFlow Sentinel'
+        });
+        
+        io.emit('notification', {
+          message: reminderMsg,
+          time: new Date()
+        });
+
+        // Explicitly emit 'notification:new' as requested by the prompt
+        io.emit('notification:new', {
+          id: row.id,
+          message: reminderMsg,
+          time: new Date()
+        });
+      }
+    }
+  } catch (err) {
+    console.error('[checkUpcomingBookings error]', err.message);
+  }
+}
+
 // Background Check for Overdue Allocations
 async function checkOverdueAllocations() {
   try {
@@ -188,9 +243,13 @@ async function startServer() {
       
       // Run once immediately on start
       checkOverdueAllocations();
+      checkUpcomingBookings();
 
-      // Schedule to run every 2 minutes
+      // Schedule to run overdue checker every 2 minutes
       setInterval(checkOverdueAllocations, 2 * 60 * 1000);
+
+      // Schedule to run booking reminder check every 1 minute
+      setInterval(checkUpcomingBookings, 1 * 60 * 1000);
     });
   } catch (err) {
     console.error('FAILED to start AssetFlow server:', err.message);
