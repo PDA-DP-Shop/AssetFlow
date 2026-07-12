@@ -101,9 +101,9 @@ router.patch('/:id/status', async (req, res) => {
 
     // 3. Automatically transition asset status
     let assetStatusUpdate = null;
-    if (status === 'Approved') {
+    if (['Approved', 'Technician Assigned', 'In Progress'].includes(status)) {
       assetStatusUpdate = 'Under Maintenance';
-    } else if (status === 'Resolved') {
+    } else if (['Resolved', 'Rejected', 'Pending'].includes(status)) {
       assetStatusUpdate = 'Available';
     }
 

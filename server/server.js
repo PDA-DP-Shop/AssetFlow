@@ -193,6 +193,29 @@ async function checkOverdueAllocations() {
   }
 }
 
+// Background Check for Bookings status transitions (Upcoming -> Ongoing -> Completed)
+async function updateBookingStatuses() {
+  try {
+    // 1. Upcoming -> Ongoing (if current time has reached start_time)
+    await db.query(
+      `UPDATE bookings 
+       SET status = 'Ongoing'::booking_status 
+       WHERE status = 'Upcoming' 
+         AND start_time <= NOW()`
+    );
+
+    // 2. Ongoing/Upcoming -> Completed (if current time has reached end_time)
+    await db.query(
+      `UPDATE bookings 
+       SET status = 'Completed'::booking_status 
+       WHERE status IN ('Upcoming', 'Ongoing') 
+         AND end_time <= NOW()`
+    );
+  } catch (err) {
+    console.error('[updateBookingStatuses error]', err.message);
+  }
+}
+
 async function startServer() {
   try {
     console.log('Booting AssetFlow server configurations...');
@@ -207,13 +230,17 @@ async function startServer() {
       
       // Run once immediately on start
       checkOverdueAllocations();
+      updateBookingStatuses();
       checkUpcomingBookings();
 
       // Schedule to run overdue checker every 2 minutes
       setInterval(checkOverdueAllocations, 2 * 60 * 1000);
 
-      // Schedule to run booking reminder check every 1 minute
-      setInterval(checkUpcomingBookings, 1 * 60 * 1000);
+      // Schedule to run booking status update and reminder check every 1 minute
+      setInterval(async () => {
+        await checkUpcomingBookings();
+        await updateBookingStatuses();
+      }, 1 * 60 * 1000);
     });
   } catch (err) {
     console.error('FAILED to start AssetFlow server:', err.message);
