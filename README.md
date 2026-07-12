@@ -1,6 +1,7 @@
 <div align="center">
 
-<img src="client/public/logo.png" alt="Briefcase" width="80" height="80" />
+<img src="client/public/logo.png" alt="Briefcase" width="80" height="80" /><br>
+
 
 <img src="https://readme-typing-svg.demolab.com?font=Poppins&size=22&duration=3000&pause=800&color=714B67&center=true&vCenter=true&width=650&lines=Stop+tracking+assets+on+spreadsheets.;Track+every+laptop%2C+room%2C+and+forklift+in+real+time.;Built+in+8+hours+for+the+Odoo+Hackathon+2026." alt="Typing SVG" />
 
