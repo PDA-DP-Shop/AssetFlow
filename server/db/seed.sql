@@ -18,13 +18,13 @@ INSERT INTO categories (name, description) VALUES
 ('Testing Devices', 'Smartphones, tablets, and test benches for hardware testing')
 ON CONFLICT (name) DO NOTHING;
 
--- 3. Users (Password hashes correspond to 'AssetFlow@2026')
+-- 3. Users (Password: AssetFlow@2026)
 INSERT INTO users (name, email, password_hash, role, department_id) VALUES
-('AssetFlow Administrator', 'admin@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Admin', 2),
-('John Auditor', 'auditor@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Auditor', 2),
-('Alice Vance', 'alice@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Manager', 1),
-('Emily Employee', 'emily@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Employee', 1),
-('David Miller', 'david@assetflow.com', '$2b$10$vPz7D3lqfGleF8aTiw4.uO3uGj8aP5Ksz3e/t/yJ88.lT2H1LzWze', 'Manager', 4)
+('AssetFlow Administrator', 'admin@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Admin',    2),
+('John Auditor',            'auditor@assetflow.com',  '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Auditor',  2),
+('Alice Vance',             'alice@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  1),
+('Emily Employee',          'emily@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Employee', 1),
+('David Miller',            'david@assetflow.com',    '$2b$10$qzOqJhSdZS20fiXaVqaOg.t9Q2LXqAUYOjD6Lh28DKmnwIckuC5i2', 'Manager',  4)
 ON CONFLICT (email) DO NOTHING;
 
 -- 4. Assets

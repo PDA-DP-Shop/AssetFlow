@@ -13,7 +13,6 @@
   --color-bg-card: var(--bg-card);
   --color-border-card: var(--border-card);
   
-  /* Status Colors */
   --color-status-available: var(--status-available);
   --color-status-allocated: var(--status-allocated);
   --color-status-maintenance: var(--status-maintenance);
@@ -33,39 +32,37 @@
 }
 
 :root {
-  --primary: #6366f1;       /* Indigo 500 */
-  --primary-hover: #4f46e5; /* Indigo 600 */
-  --secondary: #0f172a;     /* Slate 900 */
-  --accent: #06b6d4;        /* Cyan 500 */
-  
-  --bg-main: #0b0f19;       /* Modern Deep Navy Dark Mode Base */
-  --bg-card: rgba(22, 30, 49, 0.7); /* Translucent premium dark cards */
-  --border-card: rgba(255, 255, 255, 0.08);
-  
-  /* Asset statuses */
-  --status-available: #10b981;   /* Emerald 500 */
-  --status-allocated: #3b82f6;   /* Blue 500 */
-  --status-maintenance: #f59e0b; /* Amber 500 */
-  --status-retired: #ef4444;     /* Rose 500 */
+  --primary:       #7c3aed;  /* Violet 600 */
+  --primary-hover: #6d28d9;  /* Violet 700 */
+  --secondary:     #f5f3ff;  /* Violet 50 */
+  --accent:        #a78bfa;  /* Violet 400 */
+
+  --bg-main:    #f5f3ff;               /* Soft violet-tinted white page */
+  --bg-card:    #ffffff;               /* Pure white cards */
+  --border-card: rgba(124,58,237,0.12); /* Subtle violet border */
+
+  --status-available:   #059669;
+  --status-allocated:   #7c3aed;
+  --status-maintenance: #d97706;
+  --status-retired:     #dc2626;
 }
 
-/* Glassmorphism custom styling utilities */
+/* ── Light card utility ────────────────────────────────────────────────────── */
 .glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border-card);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  background: #ffffff;
+  border: 1px solid rgba(124, 58, 237, 0.12);
+  box-shadow: 0 2px 16px rgba(124, 58, 237, 0.06), 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
-  transform: translateY(-2px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-color: rgba(124, 58, 237, 0.22);
+  box-shadow: 0 4px 24px rgba(124, 58, 237, 0.10), 0 1px 3px rgba(0,0,0,0.06);
+  transform: translateY(-1px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
   background-color: var(--bg-main);
-  color: #f1f5f9;
+  color: #1e1b4b;
   min-height: 100vh;
 }
