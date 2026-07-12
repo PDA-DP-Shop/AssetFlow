@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './context/AuthContext.jsx';
 import AuthPage from './pages/AuthPage.jsx';
+import AssetsPage from './pages/AssetsPage.jsx';
 import { 
   Shield, 
   Layers, 
@@ -34,7 +35,6 @@ export default function App() {
   const [notifications, setNotifications] = useState([]);
   const [dbStatus, setDbStatus] = useState('Checking database...');
   const [isConnected, setIsConnected] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     // Socket events
@@ -117,12 +117,6 @@ export default function App() {
       socket.emit('testBroadcast', { message: `Simulated: Asset allocation check run at ${new Date().toLocaleTimeString()}` });
     });
   };
-
-  const filteredAssets = assets.filter(asset => 
-    asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    asset.serial_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    asset.department.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   return (
     <div className="min-h-screen bg-bg-main text-slate-100 flex flex-col font-sans">
@@ -345,73 +339,7 @@ export default function App() {
           )}
 
           {/* TAB 2: ASSETS LEDGER */}
-          {activeTab === 'assets' && (
-            <div className="glass-card rounded-2xl p-6 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h2 className="text-lg font-bold text-white font-display">Asset Registry</h2>
-                  <p className="text-xs text-slate-400">Manage, allocate, and monitor physical and digital computing resources</p>
-                </div>
-                
-                {/* Search Asset Field */}
-                <div className="relative max-w-xs w-full">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Search by name, department, serial..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-900/60 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 placeholder:text-slate-500"
-                  />
-                </div>
-              </div>
-
-              {/* Ledger Table */}
-              <div className="overflow-x-auto border border-white/5 rounded-xl">
-                <table className="min-w-full divide-y divide-white/5 text-xs text-left">
-                  <thead className="bg-white/[0.02] text-slate-400 uppercase tracking-widest text-[9px] font-bold">
-                    <tr>
-                      <th className="px-6 py-4">Asset Details</th>
-                      <th className="px-6 py-4">Serial Code</th>
-                      <th className="px-6 py-4">Department / Category</th>
-                      <th className="px-6 py-4">Value</th>
-                      <th className="px-6 py-4">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5 bg-slate-950/20">
-                    {filteredAssets.length === 0 ? (
-                      <tr>
-                        <td colSpan="5" className="px-6 py-8 text-center text-slate-500">No assets match your search parameters.</td>
-                      </tr>
-                    ) : (
-                      filteredAssets.map((asset) => (
-                        <tr key={asset.id} className="hover:bg-white/[0.01] transition-all">
-                          <td className="px-6 py-4 font-semibold text-slate-200">{asset.name}</td>
-                          <td className="px-6 py-4 font-mono text-slate-400">{asset.serial_number}</td>
-                          <td className="px-6 py-4">
-                            <div>{asset.department}</div>
-                            <div className="text-[10px] text-slate-500">{asset.category}</div>
-                          </td>
-                          <td className="px-6 py-4 font-medium text-slate-300">{asset.cost}</td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider inline-block ${
-                              (asset.status || '').toLowerCase() === 'available' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                              (asset.status || '').toLowerCase() === 'allocated' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                              (asset.status || '').toLowerCase() === 'reserved' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
-                              (asset.status || '').toLowerCase() === 'under maintenance' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
-                              'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                            }`}>
-                              {asset.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+          {activeTab === 'assets' && <AssetsPage />}
 
           {/* TAB 3: COMPLIANCE AUDITS */}
           {activeTab === 'audits' && (
