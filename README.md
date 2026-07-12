@@ -361,16 +361,18 @@ Every image below opens full size on click, GitHub does this automatically for a
 Every screen shares the same visual language, Odoo's purple at `#714B67` used for accents, headers, and primary buttons, white everywhere else, and status shown as colored pills rather than buried in plain text.
  
 <br/>
+
 ## Team Codinity
- 
+
 | | Name | What They Built |
 |---|---|---|
-| 🧭 | **Devansh** | Lead. Authentication, dashboard, organization setup, and final integration across every module |
-| 🧩 | **Rudra Modi** | Asset registration and directory, allocation and transfer, including the double allocation block |
-| ⏱️ | **Udit Rana** | Resource booking with overlap validation, maintenance kanban, and the Socket.io realtime layer |
-| 📋 | **Mit Prajapati** | Audit cycles, reports and analytics, and the activity log and notifications screen |
- 
+| 🧭 | **[Devansh](https://github.com/your-github-username)** | Lead. Authentication, dashboard, organization setup, and final integration across every module |
+| 🧩 | **[Rudra Modi](https://github.com/rudra-github-username)** | Asset registration and directory, allocation and transfer, including the double allocation block |
+| ⏱️ | **[Udit Rana](https://github.com/udit-github-username)** | Resource booking with overlap validation, maintenance kanban, and the Socket.io realtime layer |
+| 📋 | **[Mit Prajapati](https://github.com/mit-github-username)** | Audit cycles, reports and analytics, and the activity log and notifications screen |
+
 <br/>
+
 ## What We Struggled With
  
 Being straightforward about this instead of pretending the whole thing went smoothly. The booking overlap check took longer than expected to get right, our first version only checked if the new start time fell inside an existing booking, which missed cases where the new booking fully surrounded an old one. Rewriting it as a proper range overlap comparison fixed it.
