@@ -193,16 +193,29 @@ router.patch('/audit-items/:id', async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // 1. Verify item exists and get asset id
-    const itemCheck = await client.query('SELECT id, asset_id FROM audit_items WHERE id = $1', [id]);
+    // 1. Verify item exists and get asset id, cycle id, and cycle status
+    const itemCheck = await client.query(
+      `SELECT ai.id, ai.asset_id, ac.status AS cycle_status
+       FROM audit_items ai
+       JOIN audit_cycles ac ON ai.audit_cycle_id = ac.id
+       WHERE ai.id = $1`,
+      [id]
+    );
     if (itemCheck.rowCount === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Audit item not found.' });
     }
-    const assetId = itemCheck.rows[0].asset_id;
+    const { asset_id: assetId, cycle_status } = itemCheck.rows[0];
+
+    if (cycle_status === 'Closed') {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Cannot update audit item because the associated audit cycle is closed.' });
+    }
 
     // 2. Verify auditor exists
     const auditorCheck = await client.query('SELECT name FROM users WHERE id = $1', [verified_by]);
     if (auditorCheck.rowCount === 0) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ error: 'Auditor user account not found.' });
     }
 
@@ -304,6 +317,80 @@ router.patch('/audits/:id', async (req, res) => {
   } catch (err) {
     console.error(`[PATCH /api/audits/${id}]`, err.message);
     return res.status(500).json({ error: 'Server error updating audit cycle status.', details: err.message });
+  }
+});
+
+// PATCH /api/audits/:id/close — Lock the audit cycle and mark missing assets as lost
+router.patch('/audits/:id/close', async (req, res) => {
+  const { id } = req.params;
+
+  const client = await db.pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // 1. Check if cycle exists and get its status
+    const cycleRes = await client.query('SELECT status, name FROM audit_cycles WHERE id = $1', [id]);
+    if (cycleRes.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Audit cycle not found.' });
+    }
+
+    const cycle = cycleRes.rows[0];
+    if (cycle.status === 'Closed') {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Audit cycle is already closed.' });
+    }
+
+    // 2. Lock the cycle (set status = 'Closed')
+    await client.query("UPDATE audit_cycles SET status = 'Closed' WHERE id = $1", [id]);
+
+    // 3. Auto-update status of assets marked Missing in this cycle to 'Lost'
+    const updateAssetsRes = await client.query(
+      `UPDATE assets
+       SET status = 'Lost'::asset_status
+       WHERE id IN (
+         SELECT asset_id 
+         FROM audit_items 
+         WHERE audit_cycle_id = $1 AND status = 'Missing'
+       )
+       RETURNING id, name;`,
+      [id]
+    );
+
+    // 4. Log the lock action
+    await client.query(
+      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
+       VALUES ($1, 'AUDIT_CLOSE', 'audit_cycles', $2, $3)`,
+      [1, id, `Closed and locked audit cycle: "${cycle.name}". Synced ${updateAssetsRes.rowCount} missing assets to Lost.`]
+    );
+
+    await client.query('COMMIT');
+
+    // Emit socket notifications
+    const io = req.app.get('socketio');
+    if (io) {
+      io.emit('activity', {
+        action: 'AUDIT_CLOSE',
+        details: `Closed and locked audit cycle: "${cycle.name}". Synced ${updateAssetsRes.rowCount} missing assets to Lost.`,
+        user_name: 'AssetFlow Administrator'
+      });
+      io.emit('notification', {
+        message: `Audit cycle "${cycle.name}" closed`,
+        time: new Date()
+      });
+    }
+
+    return res.status(200).json({
+      message: 'Audit cycle closed and locked successfully.',
+      missing_assets_updated: updateAssetsRes.rows
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error(`[PATCH /api/audits/${id}/close]`, err.message);
+    return res.status(500).json({ error: 'Server error closing audit cycle.', details: err.message });
+  } finally {
+    client.release();
   }
 });
 

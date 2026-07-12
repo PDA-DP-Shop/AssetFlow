@@ -100,7 +100,6 @@ export default function AuditsPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to update audit item.');
 
       setSuccess(`Updated asset state successfully.`);
-      // Refresh details
       fetchCycleData();
     } catch (err) {
       setError(err.message);
@@ -116,19 +115,18 @@ export default function AuditsPage() {
     setError('');
     setSuccess('');
     try {
-      const res = await fetch(`/api/audits/${selectedCycleId}`, {
+      const res = await fetch(`/api/audits/${selectedCycleId}/close`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: 'Closed' })
+        }
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to close audit cycle.');
 
-      setSuccess('Audit cycle closed successfully. All matched assets have been synced.');
+      setSuccess('Audit cycle closed and locked successfully. Missing assets updated to Lost.');
       fetchCycles();
       fetchCycleData();
     } catch (err) {
@@ -141,7 +139,6 @@ export default function AuditsPage() {
   const handleStatusSelect = (item, newStatus) => {
     if (newStatus === 'Pending') return;
     
-    // If Verified, update immediately. If Missing/Damaged, open prompt to add optional note
     if (newStatus === 'Verified') {
       updateItemStatus(item.id, newStatus);
     } else {
@@ -168,6 +165,8 @@ export default function AuditsPage() {
       </span>
     );
   };
+
+  const flaggedItems = auditItems.filter(item => item.status === 'Missing' || item.status === 'Damaged');
 
   return (
     <div className="space-y-6 animate-[fadeIn_0.3s_ease-out]">
@@ -216,7 +215,6 @@ export default function AuditsPage() {
       {/* ── Banner Header Banner ── */}
       {cycleDetails && (
         <div className="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-violet-200/50 relative overflow-hidden">
-          {/* Decorative sphere */}
           <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-white/10 blur-xl pointer-events-none" />
           
           <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -241,7 +239,6 @@ export default function AuditsPage() {
               </div>
             </div>
 
-            {/* Auditors Info Section */}
             <div className="bg-white/10 border border-white/20 rounded-xl p-4 md:max-w-xs w-full space-y-2">
               <h4 className="text-[10px] font-bold uppercase tracking-widest text-violet-200 flex items-center gap-1.5">
                 <Users className="w-3.5 h-3.5" />
@@ -259,6 +256,37 @@ export default function AuditsPage() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Discrepancy Summary Section ── */}
+      {!loading && flaggedItems.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 space-y-3.5 shadow-sm">
+          <div className="flex items-center gap-2.5 text-red-700">
+            <AlertTriangle className="w-5 h-5 shrink-0" />
+            <h4 className="text-xs font-bold uppercase tracking-wider">
+              {flaggedItems.length} assets flagged - discrepancy report generated automatically
+            </h4>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {flaggedItems.map(flagged => (
+              <div key={flagged.id} className="bg-white border border-red-100 rounded-xl p-3 flex flex-col justify-between space-y-1.5 shadow-2xs">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h5 className="font-semibold text-violet-900 text-xs">{flagged.asset_name}</h5>
+                    <span className="font-mono text-[9px] text-violet-600 font-bold bg-violet-50 border border-violet-100 px-1.5 py-0.2 rounded mt-0.5 inline-block">
+                      {flagged.asset_tag}
+                    </span>
+                  </div>
+                  {getStatusPill(flagged.status)}
+                </div>
+                <p className="text-[11px] text-slate-500 italic">
+                  Note: {flagged.notes || 'No notes flagged'}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -306,31 +334,22 @@ export default function AuditsPage() {
               ) : (
                 auditItems.map(item => (
                   <tr key={item.id} className="hover:bg-violet-50/20 transition-colors">
-                    {/* Asset Info */}
                     <td className="px-5 py-4">
                       <p className="font-semibold text-violet-900">{item.asset_name}</p>
                       <span className="font-mono text-[9px] text-violet-600 font-bold bg-violet-50 border border-violet-100 px-1.5 py-0.5 rounded mt-1 inline-block">
                         {item.asset_tag || '—'}
                       </span>
                     </td>
-                    
-                    {/* Serial */}
                     <td className="px-5 py-4 font-mono text-slate-400 text-[10px]">{item.serial_number}</td>
-                    
-                    {/* Expected Location */}
                     <td className="px-5 py-4 text-slate-500">
                       <span className="flex items-center gap-1">
                         <MapPinIcon className="w-3 h-3 text-violet-400 shrink-0" />
                         {item.expected_location || '—'}
                       </span>
                     </td>
-
-                    {/* Status dropdown / pill */}
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
                         {getStatusPill(item.status)}
-                        
-                        {/* Only allow editing if cycle is OPEN */}
                         {cycleDetails?.status === 'Open' && (
                           <select
                             disabled={updatingItemId === item.id}
@@ -346,8 +365,6 @@ export default function AuditsPage() {
                         )}
                       </div>
                     </td>
-
-                    {/* Verifier details */}
                     <td className="px-5 py-4 text-[11px] text-slate-500">
                       {item.verified_by_name ? (
                         <div>
@@ -360,8 +377,6 @@ export default function AuditsPage() {
                         <span className="text-slate-300 italic">Not verified</span>
                       )}
                     </td>
-
-                    {/* Notes */}
                     <td className="px-5 py-4 text-[11px] text-slate-500 max-w-[150px] truncate" title={item.notes || ''}>
                       {item.notes || <span className="text-slate-300">—</span>}
                     </td>
@@ -453,7 +468,6 @@ export default function AuditsPage() {
   );
 }
 
-// Inline mini icon component to avoid importing MapPin if it is not imported
 function MapPinIcon(props) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
