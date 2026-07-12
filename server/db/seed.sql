@@ -28,13 +28,13 @@ INSERT INTO users (name, email, password_hash, role, department_id) VALUES
 ON CONFLICT (email) DO NOTHING;
 
 -- 4. Assets
-INSERT INTO assets (name, serial_number, category_id, department_id, status, purchase_date, purchase_cost) VALUES
-('MacBook Pro 16" M3 Max', 'SN-M3MAX-88219', 1, 1, 'allocated', '2026-01-10', 3499.00),
-('Dell UltraSharp 32" 4K Monitor', 'SN-DELL4K-00293', 2, 1, 'available', '2026-02-15', 899.00),
-('Cisco Catalyst 9300 Switch', 'SN-CISCO-9300X', 3, 2, 'maintenance', '2025-11-20', 4500.00),
-('iPad Pro 12.9" Cellular', 'SN-IPADPRO-90082', 5, 4, 'allocated', '2026-03-01', 1299.00),
-('Herman Miller Aeron Chair', 'SN-AERON-55610', 4, 5, 'allocated', '2024-06-18', 1450.00),
-('Testbench iPhone 15 Pro', 'SN-IPHONE15-2234', 5, 1, 'available', '2025-10-05', 999.00)
+INSERT INTO assets (name, serial_number, category_id, department_id, status, acquisition_date, acquisition_cost, condition, location, is_bookable) VALUES
+('MacBook Pro 16" M3 Max', 'SN-M3MAX-88219', 1, 1, 'Allocated', '2026-01-10', 3499.00, 'Excellent', 'Main Office Floor 2', false),
+('Dell UltraSharp 32" 4K Monitor', 'SN-DELL4K-00293', 2, 1, 'Available', '2026-02-15', 899.00, 'Good', 'Main Office Floor 2', false),
+('Cisco Catalyst 9300 Switch', 'SN-CISCO-9300X', 3, 2, 'Under Maintenance', '2025-11-20', 4500.00, 'Requires Service', 'Server Room A', false),
+('iPad Pro 12.9" Cellular', 'SN-IPADPRO-90082', 5, 4, 'Allocated', '2026-03-01', 1299.00, 'Excellent', 'Sales Floor 1', true),
+('Herman Miller Aeron Chair', 'SN-AERON-55610', 4, 5, 'Allocated', '2024-06-18', 1450.00, 'Good', 'HR Department', false),
+('Testbench iPhone 15 Pro', 'SN-IPHONE15-2234', 5, 1, 'Available', '2025-10-05', 999.00, 'Fair', 'Mobile Test Lab', true)
 ON CONFLICT (serial_number) DO NOTHING;
 
 -- 5. Allocations

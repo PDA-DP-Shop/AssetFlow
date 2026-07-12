@@ -369,9 +369,10 @@ export default function App() {
                           <td className="px-6 py-4 font-medium text-slate-300">{asset.cost}</td>
                           <td className="px-6 py-4">
                             <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider inline-block ${
-                              asset.status === 'available' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                              asset.status === 'allocated' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                              asset.status === 'maintenance' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                              (asset.status || '').toLowerCase() === 'available' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                              (asset.status || '').toLowerCase() === 'allocated' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                              (asset.status || '').toLowerCase() === 'reserved' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' :
+                              (asset.status || '').toLowerCase() === 'under maintenance' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
                               'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                             }`}>
                               {asset.status}

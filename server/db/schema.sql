@@ -28,18 +28,52 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create ENUM type for asset status if not exists
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'asset_status') THEN
+        CREATE TYPE asset_status AS ENUM ('Available', 'Allocated', 'Reserved', 'Under Maintenance', 'Lost', 'Retired', 'Disposed');
+    END IF;
+END$$;
+
+-- Create Sequence for formatting asset tags (e.g. AF-0001)
+CREATE SEQUENCE IF NOT EXISTS asset_tag_seq START WITH 1;
+
+-- Create function to auto-generate asset tags
+CREATE OR REPLACE FUNCTION set_next_asset_tag()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.asset_tag IS NULL THEN
+        NEW.asset_tag := 'AF-' || LPAD(nextval('asset_tag_seq')::text, 4, '0');
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 4. Assets Table
 CREATE TABLE IF NOT EXISTS assets (
     id SERIAL PRIMARY KEY,
+    asset_tag VARCHAR(20) UNIQUE,
     name VARCHAR(150) NOT NULL,
-    serial_number VARCHAR(100) UNIQUE NOT NULL,
     category_id INTEGER REFERENCES categories(id) ON DELETE RESTRICT,
     department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
-    status VARCHAR(50) DEFAULT 'available', -- e.g., available, allocated, maintenance, retired
-    purchase_date DATE,
-    purchase_cost NUMERIC(12, 2),
+    serial_number VARCHAR(100) UNIQUE NOT NULL,
+    acquisition_date DATE DEFAULT CURRENT_DATE,
+    acquisition_cost NUMERIC(12, 2),
+    condition VARCHAR(100),
+    location VARCHAR(150),
+    photo_url TEXT,
+    is_bookable BOOLEAN DEFAULT FALSE,
+    status asset_status DEFAULT 'Available',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Drop trigger if already exists (avoids errors when running repeatedly)
+DROP TRIGGER IF EXISTS trigger_generate_asset_tag ON assets;
+CREATE TRIGGER trigger_generate_asset_tag
+BEFORE INSERT ON assets
+FOR EACH ROW
+EXECUTE FUNCTION set_next_asset_tag();
 
 -- 5. Allocations Table
 CREATE TABLE IF NOT EXISTS allocations (
