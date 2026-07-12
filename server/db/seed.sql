@@ -34,19 +34,22 @@ INSERT INTO assets (name, serial_number, category_id, department_id, status, acq
 ('Cisco Catalyst 9300 Switch', 'SN-CISCO-9300X', 3, 2, 'Under Maintenance', '2025-11-20', 4500.00, 'Requires Service', 'Server Room A', false),
 ('iPad Pro 12.9" Cellular', 'SN-IPADPRO-90082', 5, 4, 'Allocated', '2026-03-01', 1299.00, 'Excellent', 'Sales Floor 1', true),
 ('Herman Miller Aeron Chair', 'SN-AERON-55610', 4, 5, 'Allocated', '2024-06-18', 1450.00, 'Good', 'HR Department', false),
-('Testbench iPhone 15 Pro', 'SN-IPHONE15-2234', 5, 1, 'Available', '2025-10-05', 999.00, 'Fair', 'Mobile Test Lab', true)
+('Testbench iPhone 15 Pro', 'SN-IPHONE15-2234', 5, 1, 'Available', '2025-10-05', 999.00, 'Fair', 'Mobile Test Lab', true),
+('Lenovo ThinkPad X1 Carbon', 'SN-THINKPAD-00382', 1, 1, 'Allocated', '2025-05-10', 1800.00, 'Good', 'Main Office Floor 2', false)
 ON CONFLICT (serial_number) DO NOTHING;
 
 -- 5. Allocations
-INSERT INTO allocations (asset_id, user_id, notes, status) VALUES
-(1, 4, 'Assigned to Emily for software engineering work.', 'active'),
-(4, 5, 'Assigned to David for field client presentations.', 'active'),
-(5, 1, 'Standard admin desk configuration.', 'active')
+INSERT INTO allocations (asset_id, user_id, notes, expected_return_date, status) VALUES
+(1, 4, 'Assigned to Emily for software engineering work.', NULL, 'active'),
+(4, 5, 'Assigned to David for field client presentations.', NULL, 'active'),
+(5, 1, 'Standard admin desk configuration.', NULL, 'active'),
+(7, 4, 'Standard issue work laptop (overdue check showcase).', '2026-06-01', 'active')
 ON CONFLICT DO NOTHING;
 
 -- 6. Transfers
-INSERT INTO transfers (asset_id, from_department_id, to_department_id, status, approved_by) VALUES
-(1, 2, 1, 'approved', 1)
+INSERT INTO transfers (asset_id, from_department_id, to_department_id, from_user_id, to_user_id, reason, status) VALUES
+(1, 2, 1, 2, 4, 'Initial departmental migration', 'approved'),
+(4, 4, 1, 5, 4, 'Emily needs iPad Pro for testing layout designs in Safari.', 'pending')
 ON CONFLICT DO NOTHING;
 
 -- 7. Resources
@@ -59,7 +62,8 @@ ON CONFLICT DO NOTHING;
 -- 8. Bookings
 INSERT INTO bookings (resource_id, booked_by, start_time, end_time, purpose, status) VALUES
 (1, 3, CURRENT_TIMESTAMP + INTERVAL '1 hour',  CURRENT_TIMESTAMP + INTERVAL '2 hours', 'Sprint Review Planning', 'Upcoming'),
-(2, 4, CURRENT_TIMESTAMP + INTERVAL '1 day',   CURRENT_TIMESTAMP + INTERVAL '3 days',  'Server benchmark runs',  'Upcoming')
+(2, 4, CURRENT_TIMESTAMP + INTERVAL '1 day',   CURRENT_TIMESTAMP + INTERVAL '3 days',  'Server benchmark runs',  'Upcoming'),
+(1, 4, CURRENT_TIMESTAMP + INTERVAL '10 minutes', CURRENT_TIMESTAMP + INTERVAL '40 minutes', 'Quick UI/UX Review', 'Upcoming')
 ON CONFLICT DO NOTHING;
 
 -- 9. Maintenance Requests

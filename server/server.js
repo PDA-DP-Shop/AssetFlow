@@ -88,6 +88,45 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+app.post('/api/admin/reset-db', async (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Drop all tables
+    const dropTablesSql = `
+      DROP TABLE IF EXISTS notifications CASCADE;
+      DROP TABLE IF EXISTS activity_log CASCADE;
+      DROP TABLE IF EXISTS audit_items CASCADE;
+      DROP TABLE IF EXISTS audit_auditors CASCADE;
+      DROP TABLE IF EXISTS audit_cycles CASCADE;
+      DROP TABLE IF EXISTS maintenance_requests CASCADE;
+      DROP TABLE IF EXISTS bookings CASCADE;
+      DROP TABLE IF EXISTS resources CASCADE;
+      DROP TABLE IF EXISTS transfers CASCADE;
+      DROP TABLE IF EXISTS allocations CASCADE;
+      DROP TABLE IF EXISTS users CASCADE;
+      DROP TABLE IF EXISTS categories CASCADE;
+      DROP TABLE IF EXISTS departments CASCADE;
+    `;
+    await db.query(dropTablesSql);
+    
+    // Re-run schema
+    const schemaSql = fs.readFileSync(path.resolve(__dirname, 'db/schema.sql'), 'utf8');
+    await db.query(schemaSql);
+    
+    // Re-run seeds
+    const seedSql = fs.readFileSync(path.resolve(__dirname, 'db/seed.sql'), 'utf8');
+    await db.query(seedSql);
+    
+    console.log('[reset-db] Database reset and seeded successfully.');
+    res.json({ message: 'Database reset and seeded successfully with fresh demo data.' });
+  } catch (err) {
+    console.error('Failed to reset database:', err.message);
+    res.status(500).json({ error: 'Database reset failed', details: err.message });
+  }
+});
+
 // Demo Route to trigger a Socket.io broadcast and save to DB
 app.post('/api/test-broadcast', async (req, res) => {
   const { message } = req.body;

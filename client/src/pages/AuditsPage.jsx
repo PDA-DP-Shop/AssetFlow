@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Shield, Calendar, Users, CheckCircle, XCircle, AlertTriangle, Clock, RefreshCw, X, Loader2, ArrowRight
+  Shield, Calendar, Users, CheckCircle, XCircle, AlertTriangle, Clock, RefreshCw, X, Loader2, ArrowRight, Plus
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CustomSelect from '../components/CustomSelect';
@@ -14,6 +14,7 @@ const ITEM_STATUS_STYLES = {
 
 export default function AuditsPage() {
   const { token, user } = useAuth();
+  const isPrivileged = user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'Auditor';
 
   const [cycles, setCycles] = useState([]);
   const [selectedCycleId, setSelectedCycleId] = useState('');
@@ -31,6 +32,46 @@ export default function AuditsPage() {
   const [editingItem, setEditingItem] = useState(null);
   const [noteText, setNoteText] = useState('');
   const [targetStatus, setTargetStatus] = useState('');
+
+  // Create Cycle Modal State
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newCycleName, setNewCycleName] = useState('');
+  const [newScopeDeptId, setNewScopeDeptId] = useState('');
+  const [newScopeLocation, setNewScopeLocation] = useState('');
+  const [newStartDate, setNewStartDate] = useState('');
+  const [newEndDate, setNewEndDate] = useState('');
+  const [newAuditorId, setNewAuditorId] = useState('');
+  const [departments, setDepartments] = useState([]);
+  const [employees, setEmployees] = useState([]);
+  const [creating, setCreating] = useState(false);
+
+  // Fetch list of departments
+  const fetchDepartments = useCallback(async () => {
+    try {
+      const res = await fetch('/api/departments', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to load departments.');
+      const data = await res.json();
+      setDepartments(data.departments || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [token]);
+
+  // Fetch list of employees (auditors selection)
+  const fetchEmployees = useCallback(async () => {
+    try {
+      const res = await fetch('/api/departments/employees', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to load employee list.');
+      const data = await res.json();
+      setEmployees(data.employees || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [token]);
 
   // Fetch list of cycles
   const fetchCycles = useCallback(async () => {
@@ -51,7 +92,61 @@ export default function AuditsPage() {
 
   useEffect(() => {
     fetchCycles();
-  }, [fetchCycles]);
+    fetchDepartments();
+    fetchEmployees();
+  }, [fetchCycles, fetchDepartments, fetchEmployees]);
+
+  // Handle Create Audit Cycle Form Submit
+  const handleCreateCycle = async (e) => {
+    e.preventDefault();
+    if (!newCycleName || !newStartDate || !newEndDate) {
+      setError('Please fill in Name, Start Date, and End Date.');
+      return;
+    }
+    setCreating(true);
+    setError('');
+    setSuccess('');
+    try {
+      const res = await fetch('/api/audits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: newCycleName,
+          scope_department_id: newScopeDeptId ? Number(newScopeDeptId) : null,
+          scope_location: newScopeLocation || null,
+          start_date: newStartDate,
+          end_date: newEndDate,
+          auditor_ids: newAuditorId ? [Number(newAuditorId)] : []
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create audit cycle.');
+
+      setSuccess('Audit cycle created successfully!');
+      setShowCreateModal(false);
+      // reset form
+      setNewCycleName('');
+      setNewScopeDeptId('');
+      setNewScopeLocation('');
+      setNewStartDate('');
+      setNewEndDate('');
+      setNewAuditorId('');
+      
+      // reload
+      await fetchCycles();
+      if (data.cycle) {
+        setSelectedCycleId(data.cycle.id.toString());
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setCreating(false);
+    }
+  };
 
   // Fetch details for the selected cycle
   const fetchCycleData = useCallback(async () => {
@@ -192,6 +287,15 @@ export default function AuditsPage() {
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           </button>
+          {isPrivileged && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 rounded-xl text-xs font-semibold text-white shadow-md shadow-violet-250 transition-all active:scale-[0.98]"
+            >
+              <Plus className="w-4 h-4" />
+              Start Audit Cycle
+            </button>
+          )}
         </div>
       </div>
 
@@ -456,6 +560,119 @@ export default function AuditsPage() {
                   className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-200 transition-all active:scale-[0.98]"
                 >
                   Confirm State Update
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Start Audit Cycle Modal ── */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          style={{ background: 'rgba(109,40,217,0.10)', backdropFilter: 'blur(6px)' }}>
+          <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-2xl border border-violet-100 animate-[fadeIn_0.25s_ease-out]">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-violet-100 rounded-xl">
+                  <Shield className="w-4 h-4 text-violet-600" />
+                </div>
+                <h3 className="text-base font-bold text-violet-900 font-display">
+                  Start New Audit Cycle
+                </h3>
+              </div>
+              <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-violet-600 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCycle} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Cycle Name *</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Q3 Hardware Compliance Audit"
+                  value={newCycleName}
+                  onChange={e => setNewCycleName(e.target.value)}
+                  required
+                  className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-sm text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Start Date *</label>
+                  <input
+                    type="date"
+                    value={newStartDate}
+                    onChange={e => setNewStartDate(e.target.value)}
+                    required
+                    className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2 text-xs text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">End Date *</label>
+                  <input
+                    type="date"
+                    value={newEndDate}
+                    onChange={e => setNewEndDate(e.target.value)}
+                    required
+                    className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2 text-xs text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Scope Department (Optional)</label>
+                <CustomSelect
+                  value={newScopeDeptId}
+                  onChange={e => setNewScopeDeptId(e.target.value)}
+                  placeholder="All Departments"
+                  options={[
+                    { value: '', label: 'All Departments' },
+                    ...departments.map(d => ({ value: String(d.id), label: d.name }))
+                  ]}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Scope Location (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Floor 3, Server Room A"
+                  value={newScopeLocation}
+                  onChange={e => setNewScopeLocation(e.target.value)}
+                  className="w-full bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-sm text-violet-900 focus:outline-none focus:ring-2 focus:ring-violet-400/50"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-violet-500">Assign Auditor (Optional)</label>
+                <CustomSelect
+                  value={newAuditorId}
+                  onChange={e => setNewAuditorId(e.target.value)}
+                  placeholder="Unassigned"
+                  options={[
+                    { value: '', label: 'Unassigned' },
+                    ...employees.map(emp => ({ value: String(emp.id), label: `${emp.name} (${emp.role})` }))
+                  ]}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-slate-500 border border-violet-200 hover:bg-violet-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="flex-1 py-2.5 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-200 transition-all active:scale-[0.98]"
+                >
+                  {creating ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : 'Create Cycle'}
                 </button>
               </div>
             </form>

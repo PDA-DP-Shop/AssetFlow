@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Building2, Users, FolderOpen, Plus, Edit2, CheckCircle2, XCircle, AlertCircle, X, Loader2, Award, UserCheck, ShieldAlert
+  Building2, Users, FolderOpen, Plus, Edit2, CheckCircle2, XCircle, AlertCircle, X, Loader2, Award, UserCheck, ShieldAlert, RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import CustomSelect from '../components/CustomSelect';
@@ -15,6 +15,34 @@ export default function OrgSetupPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [saving, setSaving] = useState(false);
+
+  const handleResetDb = async () => {
+    if (!window.confirm("Are you sure you want to reset the database? This will clear all data and reload the initial presentation seed data.")) {
+      return;
+    }
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const res = await fetch('/api/admin/reset-db', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to reset database.');
+      setSuccess('Database successfully reset to presentation seeds!');
+      setTimeout(() => {
+        window.location.reload();
+      }, 1200);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // ─── DEPARTMENTS TAB STATE ───
   const [departments, setDepartments] = useState([]);
@@ -294,24 +322,33 @@ export default function OrgSetupPage() {
           <h2 className="text-xl font-bold text-violet-900 font-display tracking-tight">Organization Setup</h2>
           <p className="text-xs text-slate-500 mt-0.5">Manage departments, categories, and employee privilege levels</p>
         </div>
-        {activeTab === 'departments' && (
+        <div className="flex items-center gap-2 self-end sm:self-auto">
           <button
-            onClick={openAddDept}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-200 transition-all active:scale-[0.98]"
+            onClick={handleResetDb}
+            className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-rose-600 bg-white border border-rose-200 hover:bg-rose-50/50 transition-all active:scale-[0.98] shadow-2xs"
           >
-            <Plus className="w-4 h-4" />
-            Add Department
+            <RefreshCw className="w-3.5 h-3.5" />
+            Reset Demo Data
           </button>
-        )}
-        {activeTab === 'categories' && (
-          <button
-            onClick={openAddCat}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-200 transition-all active:scale-[0.98]"
-          >
-            <Plus className="w-4 h-4" />
-            Add Category
-          </button>
-        )}
+          {activeTab === 'departments' && (
+            <button
+              onClick={openAddDept}
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-200 transition-all active:scale-[0.98]"
+            >
+              <Plus className="w-4 h-4" />
+              Add Department
+            </button>
+          )}
+          {activeTab === 'categories' && (
+            <button
+              onClick={openAddCat}
+              className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md shadow-violet-200 transition-all active:scale-[0.98]"
+            >
+              <Plus className="w-4 h-4" />
+              Add Category
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
