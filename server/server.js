@@ -14,6 +14,7 @@ const assetRoutes    = require('./routes/assetRoutes');
 const bookingRoutes  = require('./routes/bookingRoutes');
 const auditRoutes    = require('./routes/auditRoutes');
 const resourceRoutes = require('./routes/resourceRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -25,6 +26,8 @@ const io = new Server(server, {
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   },
 });
+
+app.set('socketio', io);
 
 app.use(cors());
 app.use(express.json());
@@ -51,6 +54,7 @@ app.use('/api/auth',      authRoutes);
 app.use('/api/assets',    assetRoutes);
 app.use('/api/bookings',  bookingRoutes);
 app.use('/api/resources', resourceRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api',           auditRoutes);
 
 app.get('/api/health', async (req, res) => {

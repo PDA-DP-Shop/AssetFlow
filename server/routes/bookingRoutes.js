@@ -80,10 +80,33 @@ router.post('/', async (req, res) => {
     `;
 
     const result = await db.query(insertQuery, [resource_id, booked_by, start, end, purpose || null]);
-    
+    const booking = result.rows[0];
+    const userName = userCheck.rows[0].name;
+
+    // Log the activity
+    await db.query(
+      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
+       VALUES ($1, 'BOOKING_CREATE', 'bookings', $2, $3)`,
+      [booked_by, booking.id, `Booked "${resourceName}" for: "${purpose || 'Reserved Slot'}"`]
+    );
+
+    // Emit socket notification
+    const io = req.app.get('socketio');
+    if (io) {
+      io.emit('activity', {
+        action: 'BOOKING_CREATE',
+        details: `Booked "${resourceName}" for: "${purpose || 'Reserved Slot'}"`,
+        user_name: userName
+      });
+      io.emit('notification', {
+        message: `${userName} booked "${resourceName}"`,
+        time: new Date()
+      });
+    }
+
     return res.status(201).json({
       message: 'Booking created successfully.',
-      booking: result.rows[0]
+      booking
     });
   } catch (err) {
     console.error('[POST /api/bookings]', err.message);

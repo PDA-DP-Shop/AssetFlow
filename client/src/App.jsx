@@ -5,6 +5,7 @@ import AuthPage from './pages/AuthPage.jsx';
 import AssetsPage from './pages/AssetsPage.jsx';
 import BookingsPage from './pages/BookingsPage.jsx';
 import AuditsPage from './pages/AuditsPage.jsx';
+import DashboardPage from './pages/DashboardPage.jsx';
 import { 
   Shield, Layers, Users, Box, AlertTriangle,
   CheckCircle2, Bell, Activity, Cpu, Clock,
@@ -147,79 +148,7 @@ export default function App() {
         <section className="lg:col-span-3 space-y-6">
 
           {/* ── DASHBOARD ── */}
-          {activeTab === 'dashboard' && (
-            <div className="space-y-6">
-              {/* Stat cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {[
-                  { label: 'Total Assets',   value: '1,482',  sub: '+12% this cycle',  subColor: 'text-emerald-600', icon: <Box className="w-4 h-4 text-violet-500" /> },
-                  { label: 'Allocated',      value: '1,120',  sub: '75.5% utilization', subColor: 'text-slate-400',   icon: <Users className="w-4 h-4 text-indigo-500" /> },
-                  { label: 'In Repair',      value: '14',     sub: '2 high priority',  subColor: 'text-amber-600',   icon: <AlertTriangle className="w-4 h-4 text-amber-500" /> },
-                  { label: 'Audits Checked', value: '98.2%',  sub: 'Compliant status', subColor: 'text-emerald-600', icon: <CheckCircle2 className="w-4 h-4 text-emerald-500" /> },
-                ].map(card => (
-                  <div key={card.label} className="glass-card rounded-2xl p-5 flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{card.label}</span>
-                      {card.icon}
-                    </div>
-                    <div className="text-2xl font-bold font-display text-violet-900">{card.value}</div>
-                    <span className={`text-[10px] font-semibold mt-1 ${card.subColor}`}>{card.sub}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Feed + Logs */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Live socket feed */}
-                <div className="glass-card rounded-2xl p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-sm font-bold uppercase tracking-widest text-violet-800 flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-violet-500" />
-                      Live WebSocket Feed
-                    </h2>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-violet-100 text-violet-600 border border-violet-200">
-                      Real-time
-                    </span>
-                  </div>
-                  <div className="overflow-y-auto max-h-[280px] space-y-2 pr-1">
-                    {notifications.length === 0 ? (
-                      <div className="h-44 flex flex-col items-center justify-center text-slate-400 text-xs text-center border border-dashed border-violet-200 rounded-xl bg-violet-50/50">
-                        <Clock className="w-6 h-6 mb-2 text-violet-300" />
-                        <span>No events yet. Click Broadcast to test.</span>
-                      </div>
-                    ) : notifications.map((n, idx) => (
-                      <div key={idx} className="p-3 bg-violet-50 border border-violet-100 rounded-xl text-xs flex items-start gap-2 animate-[fadeIn_0.3s_ease-out]">
-                        <span className="w-2 h-2 mt-1.5 rounded-full bg-violet-500 inline-block shrink-0" />
-                        <div>
-                          <p className="text-violet-900 font-medium">{n.message}</p>
-                          <span className="text-[9px] text-slate-400 block mt-0.5">{new Date(n.time || Date.now()).toLocaleTimeString()}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Activity log */}
-                <div className="glass-card rounded-2xl p-6 space-y-4">
-                  <h2 className="text-sm font-bold uppercase tracking-widest text-violet-800 flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-violet-500" />
-                    Latest System Logs
-                  </h2>
-                  <div className="overflow-y-auto max-h-[280px] space-y-3 pr-1">
-                    {logs.map(log => (
-                      <div key={log.id} className="text-xs border-l-2 border-violet-300 pl-3 py-0.5 space-y-0.5">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-violet-600 text-[10px] tracking-wider uppercase">{log.action}</span>
-                          <span className="text-[10px] text-slate-400">{log.timestamp}</span>
-                        </div>
-                        <p className="text-slate-600 text-[11px]">{log.details}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {activeTab === 'dashboard' && <DashboardPage onNavigate={setActiveTab} />}
 
           {/* ── ASSETS ── */}
           {activeTab === 'assets' && <AssetsPage />}

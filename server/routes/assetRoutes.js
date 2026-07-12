@@ -62,9 +62,32 @@ router.post('/', async (req, res) => {
     ];
 
     const result = await db.query(queryText, values);
+    const asset = result.rows[0];
+
+    // Log the activity
+    await db.query(
+      `INSERT INTO activity_log (user_id, action, entity_type, entity_id, details)
+       VALUES ($1, 'ASSET_REGISTER', 'assets', $2, $3)`,
+      [1, asset.id, `Registered new asset: ${asset.name} (${asset.asset_tag})`]
+    );
+
+    // Emit socket notification
+    const io = req.app.get('socketio');
+    if (io) {
+      io.emit('activity', {
+        action: 'ASSET_REGISTER',
+        details: `Registered new asset: ${asset.name} (${asset.asset_tag})`,
+        user_name: 'AssetFlow Administrator'
+      });
+      io.emit('notification', {
+        message: `New asset registered: ${asset.name} (${asset.asset_tag})`,
+        time: new Date()
+      });
+    }
+
     return res.status(201).json({
       message: 'Asset registered successfully.',
-      asset: result.rows[0]
+      asset
     });
   } catch (err) {
     console.error('[POST /api/assets]', err.message);

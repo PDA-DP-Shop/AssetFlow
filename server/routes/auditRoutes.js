@@ -246,6 +246,21 @@ router.patch('/audit-items/:id', async (req, res) => {
 
     await client.query('COMMIT');
 
+    // Emit socket notification
+    const io = req.app.get('socketio');
+    if (io) {
+      const auditorName = auditorCheck.rows[0].name;
+      io.emit('activity', {
+        action: 'AUDIT_ITEM_VERIFY',
+        details: `Audit item #${id} marked as ${status}.` + (assetStatusUpdate ? ` Synced asset to ${assetStatusUpdate}.` : ''),
+        user_name: auditorName
+      });
+      io.emit('notification', {
+        message: `${auditorName} marked audit item as ${status}`,
+        time: new Date()
+      });
+    }
+
     return res.status(200).json({
       message: 'Audit item updated successfully.',
       audit_item: updatedItem,
