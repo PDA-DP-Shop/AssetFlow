@@ -1,227 +1,389 @@
 <div align="center">
 
-<img src="client/public/logo.png" alt="Briefcase" width="80" height="80" /><br>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=FFFFFF&height=220&section=header&text=AssetFlow&fontSize=70&fontColor=714B67&animation=fadeIn&fontAlignY=32&desc=Enterprise%20Asset%20%26%20Resource%20Management%20System&descAlignY=54&descColor=714B67&descSize=18" width="100%"/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Poppins&size=22&duration=3000&pause=800&color=714B67&center=true&vCenter=true&width=650&lines=AssetFlow" alt="Typing SVG" />
+<img src="./assets/logo-animated.svg" width="150" height="150" alt="AssetFlow animated logo"/>
 
-<br/>
+<img src="https://readme-typing-svg.demolab.com?font=Poppins&size=22&duration=3000&pause=800&color=714B67&center=true&vCenter=true&width=700&lines=Stop+tracking+assets+on+spreadsheets.;One+dashboard+for+every+laptop%2C+room%2C+and+forklift.;No+double+allocations.+No+double+bookings.;Built+in+8+hours+for+the+Odoo+Hackathon+2026." alt="Typing SVG" />
+
+<br/><br/>
 
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=714B67)
+![Vite](https://img.shields.io/badge/Vite-20232A?style=for-the-badge&logo=vite&logoColor=714B67)
 ![Node.js](https://img.shields.io/badge/Node.js-20232A?style=for-the-badge&logo=node.js&logoColor=714B67)
+![Express](https://img.shields.io/badge/Express-20232A?style=for-the-badge&logo=express&logoColor=714B67)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-20232A?style=for-the-badge&logo=postgresql&logoColor=714B67)
 ![Socket.io](https://img.shields.io/badge/Socket.io-20232A?style=for-the-badge&logo=socket.io&logoColor=714B67)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-20232A?style=for-the-badge&logo=tailwindcss&logoColor=714B67)
 
 ![Hackathon](https://img.shields.io/badge/Odoo%20Hackathon-2026-714B67?style=flat-square)
 ![Team](https://img.shields.io/badge/Team-Codinity-714B67?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Built%20in%208%20hours-714B67?style=flat-square)
+![Build Time](https://img.shields.io/badge/Built%20in-8%20hours-714B67?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-714B67?style=flat-square)
 
 </div>
 
----
+<br/>
 
-## so what actually is this
+## Table of Contents
 
-Every college, hospital, factory, or office has the same problem — nobody actually knows where their stuff is. Someone took the projector three weeks ago and it's "somewhere in HR." A laptop got handed off twice and nobody updated the sheet. The conference room got double-booked again because two people were editing the same Excel tab.
+* [The Story Behind This](#the-story-behind-this)
+* [The Actual Problem We're Solving](#the-actual-problem-were-solving)
+* [What AssetFlow Does, Screen by Screen](#what-assetflow-does-screen-by-screen)
+* [Who Uses This and What They Can Do](#who-uses-this-and-what-they-can-do)
+* [The Rules That Actually Make This Work](#the-rules-that-actually-make-this-work)
+* [Tech Stack, and Why We Picked Each Piece](#tech-stack-and-why-we-picked-each-piece)
+* [How the System is Put Together](#how-the-system-is-put-together)
+* [Database, Table by Table](#database-table-by-table)
+* [Realtime Layer](#realtime-layer)
+* [Folder Structure](#folder-structure)
+* [Running This on Your Own Machine](#running-this-on-your-own-machine)
+* [Environment Variables](#environment-variables)
+* [API, the Short Version](#api-the-short-version)
+* [Screens](#screens)
+* [Team Codinity](#team-codinity)
+* [What We Struggled With](#what-we-struggled-with)
+* [What We'd Add With More Time](#what-wed-add-with-more-time)
+* [FAQ](#faq)
+* [License](#license)
 
-**AssetFlow** is our answer to that. It's a single dashboard where an organization can register every physical asset they own, allocate it to people or departments, book shared resources without collisions, push maintenance requests through an actual approval chain, and run scheduled audits that catch what went missing — instead of finding out six months later.
+<br/>
 
-We built this for the **Odoo Hackathon 2026** in 8 hours, following the official problem statement and mockup Odoo's mentors gave us. Not a toy demo — this is meant to survive a real walkthrough by judges clicking through every screen.
+## The Story Behind This
 
----
+We walked into the Odoo Hackathon 2026 with the AssetFlow problem statement and honestly, the first read felt deceptively simple. "Track assets, book resources, run maintenance and audits." Sounds like a CRUD app with a nicer name. It's only once you actually sit down and read the fine print in the brief that you realize the whole point isn't the forms, it's the rules sitting behind the forms. An asset can't belong to two people. A room can't be booked twice for the same hour. A repair can't start without approval. That's the actual engineering problem, and that's what we spent most of our 8 hours on.
 
-## table of contents
+This README is written the same way we'd explain the project out loud to someone walking up to our table at the demo. No corporate language, no filler. Just what we built, why we built it that way, and how to run it.
 
-- [the problem, properly](#the-problem-properly)
-- [what it does](#what-it-does)
-- [tech stack](#tech-stack)
-- [how it's structured](#how-its-structured)
-- [screens](#screens)
-- [running it yourself](#running-it-yourself)
-- [the double-allocation block (our favorite part)](#the-double-allocation-block-our-favorite-part)
-- [team](#team)
-- [what we'd add with more time](#what-wed-add-with-more-time)
-- [license](#license)
+<br/>
 
----
+## The Actual Problem We're Solving
 
-## the problem, properly
+Picture any organization that owns physical stuff. A college has projectors, lab equipment, and classrooms. A hospital has wheelchairs, monitors, and consulting rooms. A factory has forklifts, tools, and loading bays. An office has laptops, chairs, and meeting rooms.
 
-Odoo's brief for this hackathon was simple on paper: build an ERP module for tracking assets and shared resources, without touching purchasing or accounting. The catch was in the details — the system has to actually *prevent* bad states, not just log them after the fact:
+Right now, almost all of them track this the same broken way. A shared spreadsheet that three people are editing at once. A WhatsApp group where someone types "does anyone know where the projector went." A paper logbook nobody actually fills in consistently. None of it is real time, none of it prevents mistakes, and by the time someone notices an asset is missing, it's been missing for months.
 
-- an asset can't be allocated to two people at once — it has to get blocked and offer a transfer request instead
-- a meeting room can't be double-booked — overlapping time slots get rejected, but back-to-back ones are fine
-- a maintenance repair can't start without going through an approval step first
-- audits have to catch discrepancies automatically, not rely on someone remembering to check
+The Odoo brief asked us to build a proper ERP module for this, specifically excluding purchasing, invoicing, and accounting so the scope stays focused on the actual lifecycle of an asset: get registered, get allocated, get used, get maintained, get audited, eventually get retired. AssetFlow is our implementation of that lifecycle, with the enforcement rules built directly into the backend, not just suggested in the UI.
 
-So this isn't a CRUD app with extra steps. Every module has a rule sitting behind it that actually gets enforced server-side.
+<br/>
 
----
+## What AssetFlow Does, Screen by Screen
 
-## what it does
+### 1. Login and Signup
 
-<table>
-<tr>
-<td width="50%" valign="top">
+Signing up through the public form only ever creates a plain Employee account. There's no role dropdown, no "register as Admin" option anywhere. This was a specific requirement in the brief and it matters more than it looks like at first: it means nobody can self-elevate their own permissions just by filling out a form differently. Every account starts at the bottom, and gets promoted deliberately by someone who already has authority.
 
-**🔐 Login & Signup**
-Signing up only ever creates a plain Employee account. Nobody self-promotes to Admin — roles get handed out later from the Employee Directory, by an Admin, on purpose.
+Email and password login, a forgot password flow, and session validation through a JWT token round out this screen.
 
-**📊 Dashboard**
-Live KPI cards — available assets, allocated, active bookings, pending transfers, upcoming returns — plus overdue items flagged separately in red so they don't get lost in the noise.
+### 2. Dashboard
 
-**🏢 Organization Setup**
-Departments (with hierarchy), asset categories, and the employee directory all live here. This is also the *only* place an Admin can promote someone to Department Head or Asset Manager.
+The first thing anyone sees after logging in. Six KPI cards up top: Assets Available, Assets Allocated, Maintenance Today, Active Bookings, Pending Transfers, Upcoming Returns. Below that, anything overdue, meaning any allocation past its expected return date, gets pulled out into its own red banner instead of getting buried in the numbers, because the whole point of a dashboard is that the urgent stuff shouldn't require digging.
 
-**📦 Asset Registry**
-Register anything — laptop, chair, forklift, van. Auto-generated tag numbers (AF-0001, AF-0002...), full search by tag/serial/QR/location, and a status that actually reflects reality: Available, Allocated, Reserved, Under Maintenance, Lost, Retired, Disposed.
+There are three quick action buttons: Register Asset, Book Resource, Raise Maintenance Request, so the three most common actions in the whole app are always one click away, no matter which screen you were previously on.
 
-</td>
-<td width="50%" valign="top">
+A recent activity feed sits at the bottom and updates live, since we wired it into the same Socket.io layer that powers notifications elsewhere.
 
-**🔄 Allocation & Transfer**
-Try to allocate something that's already taken and the system stops you cold, tells you who has it, and hands you a transfer request instead of letting you overwrite the record.
+### 3. Organization Setup, Admin Only
 
-**📅 Resource Booking**
-Time-slot booking for rooms, vehicles, shared equipment. Overlapping requests get rejected automatically; back-to-back slots go through fine.
+This is the master data screen, split into three tabs, and everything else in the app depends on what's set up here.
 
-**🛠️ Maintenance**
-A kanban board — Pending → Approved → Technician Assigned → In Progress → Resolved. The asset's status flips to "Under Maintenance" automatically the moment a request gets approved, and back to "Available" the moment it's resolved.
+Tab A, Department Management, is where departments get created, edited, or deactivated, with an assigned Department Head and an optional parent department for cases where departments are nested under a bigger division.
 
-**🔍 Audit Cycles**
-Set a scope, assign auditors, and let them mark every asset Verified, Missing, or Damaged. Closing the cycle locks it and auto-updates anything confirmed missing to "Lost."
+Tab B, Asset Category Management, is where categories like Electronics, Furniture, or Vehicles get created, each with optional category-specific fields, for example a warranty period field that only makes sense for Electronics.
 
-**📈 Reports & 🔔 Notifications**
-Utilization charts, idle-asset lists, maintenance frequency — plus a live notification feed powered by Socket.io so nothing needs a page refresh to show up.
+Tab C, Employee Directory, lists every employee with their department, role, and status, and this is the only screen in the entire application where an Admin can promote someone to Department Head or Asset Manager. We were deliberate about keeping role assignment centralized to exactly one place, because scattering that ability across multiple screens is how permission bugs happen.
 
-</td>
-</tr>
-</table>
+### 4. Asset Registration and Directory
 
----
+Where every physical asset gets entered into the system: name, category, an auto-generated asset tag like AF-0001, serial number, acquisition date, acquisition cost, condition, location, and an optional photo. Acquisition cost is kept purely for reporting and ranking purposes since accounting was explicitly out of scope.
 
-## tech stack
+There's a "shared or bookable" flag on each asset, since some assets, like a projector, might be booked by time slot rather than allocated to one person long term.
 
-| Layer | What we used | Why |
+Search works across tag, serial number, QR code, category, status, department, and location, and every asset carries a visible lifecycle status: Available, Allocated, Reserved, Under Maintenance, Lost, Retired, or Disposed. Clicking into an asset shows its full history, both allocation history and maintenance history, in one place.
+
+### 5. Asset Allocation and Transfer
+
+This is where an asset gets assigned to an employee or department, with an optional expected return date. The core rule here, and the one we're proudest of, is the conflict check: you cannot allocate an asset that's already taken.
+
+If Priya already has Laptop AF-0114 and Raj tries to allocate the same laptop to himself, the system stops it immediately, tells Raj it's currently held by Priya, and offers a Transfer Request button instead of letting the record get silently overwritten. The transfer then has to move through Requested, then Approved by an Asset Manager or Department Head, then Reallocated, with the allocation history updating automatically at each step.
+
+Returning an asset captures a condition check-in note and flips the asset's status back to Available. Overdue allocations, meaning anything past its expected return date, get auto-flagged and feed straight into the Dashboard and the Notifications screen.
+
+### 6. Resource Booking
+
+Time-slot booking for shared resources like meeting rooms, vehicles, or shared equipment. The screen shows a calendar view of a resource's existing bookings, and the overlap validation happens the same way the allocation conflict check does, at the database query level, not just in the interface.
+
+If Room B2 is booked 9 to 10, a request for 9:30 to 10:30 gets rejected because it overlaps. A request for 10 to 11 goes through fine because it starts exactly when the previous booking ends. Bookings carry a status, Upcoming, Ongoing, Completed, or Cancelled, and can be cancelled or rescheduled, with a reminder notification firing before the slot starts.
+
+### 7. Maintenance Management
+
+Built as a kanban board because that's genuinely the clearest way to represent an approval pipeline. Someone raises a request by selecting the asset, describing the issue, setting a priority, and optionally attaching a photo. From there it moves through Pending, then Approved or Rejected by an Asset Manager, then Technician Assigned, then In Progress, then Resolved.
+
+The asset's own status updates automatically at two points in this pipeline: it flips to Under Maintenance the moment the request is approved, and flips back to Available the moment the request is marked Resolved. Nobody has to remember to manually change the asset's status, the workflow does it.
+
+### 8. Asset Audit
+
+Instead of a single ad hoc checklist, audits are run as scheduled cycles. An Admin or Asset Manager creates an audit cycle with a scope, either a department or a location, and a date range, then assigns one or more auditors to it. Each auditor goes through their assigned assets and marks each one Verified, Missing, or Damaged.
+
+The system automatically generates a discrepancy report for anything flagged, so nobody has to manually compile a list of what went wrong. Closing the audit cycle locks it permanently and updates affected asset statuses, so anything confirmed missing gets marked Lost. Every past audit cycle stays in the history for reference.
+
+### 9. Reports and Analytics
+
+The screen managers actually care about. Asset utilization trends broken down by department, maintenance frequency by asset and category, a list of assets due for maintenance or nearing retirement, a department wise allocation summary, and a booking heatmap showing peak usage windows for shared resources. Everything here is exportable, so it can actually be pulled into a real report instead of staying trapped in the app.
+
+### 10. Activity Logs and Notifications
+
+Every meaningful action in the system, an asset getting assigned, a maintenance request getting approved or rejected, a booking getting confirmed, cancelled, or reminded, a transfer getting approved, an overdue return, an audit discrepancy getting flagged, generates a notification. This screen shows the full feed, filterable by type, and updates live thanks to Socket.io, alongside a complete activity log of who did what and when, for full traceability.
+
+<br/>
+
+## Who Uses This and What They Can Do
+
+| Role | What They Can Do |
+|---|---|
+| **Admin** | Manages departments, categories, audit cycles, and employee role assignment. Views organization wide analytics across every department. |
+| **Asset Manager** | Registers and allocates assets. Approves transfers, maintenance requests, and audit discrepancy resolution. Approves returns and condition check in notes. |
+| **Department Head** | Views assets allocated to their own department. Approves allocation and transfer requests within their department. Books shared resources on behalf of the department. |
+| **Employee** | Views assets allocated to them personally. Books shared resources. Raises maintenance requests. Initiates return or transfer requests. |
+
+<br/>
+
+## The Rules That Actually Make This Work
+
+A few of the business rules deserved more explanation than a bullet point, so here they are in full.
+
+**Nobody self-promotes.** Signing up creates an Employee account, full stop. Every elevated role, Department Head or Asset Manager, gets assigned deliberately by an Admin from the Employee Directory in Organization Setup. This is checked server side on every protected route, not just hidden in the UI.
+
+**One asset, one holder, at a time.** Before any allocation is created, the backend checks the asset's current status. If it's already Allocated, the request gets rejected with a 409 response and the current holder's name, and the client swaps the allocate button for a transfer request form. This is the same logic that stops a room from being double booked, checked against overlapping time ranges at the database query level.
+
+**Maintenance status drives asset status.** An asset never manually flips to Under Maintenance, it happens automatically the instant a maintenance request tied to it gets approved, and reverses automatically the instant that request gets resolved. This keeps the asset's status trustworthy without relying on someone remembering to update it by hand.
+
+**Closing an audit is permanent and consequential.** Once an audit cycle is closed, it locks, no further edits, and any asset marked Missing during that cycle gets its status changed to Lost as part of the same operation, not as a separate manual step someone has to remember.
+
+<br/>
+
+## Tech Stack, and Why We Picked Each Piece
+
+| Layer | Choice | Reasoning |
 |---|---|---|
-| Frontend | React + Vite + TailwindCSS | fast dev loop, no build config headaches during a timed hackathon |
-| Backend | Node.js + Express | simple, everyone on the team already knew it |
-| Database | PostgreSQL | relational data (departments → employees → assets → allocations) actually needs real foreign keys |
-| Realtime | Socket.io | bookings, kanban drags, and notifications update live across everyone's screen without polling |
-| Auth | JWT + bcrypt | stateless, no session store to manage under time pressure |
+| Frontend | React + Vite + TailwindCSS | Vite's dev server starts instantly, which matters a lot when you only have 8 hours and can't afford to wait on rebuilds. Tailwind let us match Odoo's purple and white theme precisely without writing custom CSS files for every screen. |
+| Backend | Node.js + Express | Every team member already knew this stack well, and in a timed hackathon, familiarity beats novelty. Express kept the route structure simple to reason about across four people working in parallel. |
+| Database | PostgreSQL | The data here is genuinely relational, departments contain employees, employees hold assets, assets have allocation and maintenance histories, and audits reference all of it. A relational database with real foreign keys was the honest choice, not a NoSQL shortcut that would've caused problems later. |
+| Realtime | Socket.io | Bookings, maintenance kanban movement, and notifications all needed to update across multiple logged in users without a page refresh. Socket.io handled this without needing a separate message queue setup. |
+| Auth | JWT + bcrypt | Stateless authentication meant no server side session store to configure and maintain under time pressure, and bcrypt is still the standard for password hashing done properly. |
 
-No purchasing, invoicing, or accounting logic — that was explicitly out of scope in the brief, and we kept it that way instead of scope-creeping into something half-finished.
+We deliberately left out an ORM. Every table is created and queried with plain SQL. It's a few more lines of code in the routes, but it's dramatically easier to explain to a judge in ninety seconds, and none of us wanted to debug an ORM migration issue at three in the morning mid hackathon.
 
----
+<br/>
 
-## how it's structured
+## How the System is Put Together
+
+```
+Browser (React + Vite)
+        |
+        |  REST calls (JWT in Authorization header)
+        |  Socket.io connection (live events)
+        v
+Express Server
+        |
+        |-- Auth routes (signup, login, session check)
+        |-- Organization routes (departments, categories, employees)
+        |-- Asset routes (register, search, allocate, transfer, return)
+        |-- Booking routes (create, cancel, overlap check)
+        |-- Maintenance routes (raise, approve, assign, resolve)
+        |-- Audit routes (create cycle, mark items, close cycle)
+        |-- Reports routes (aggregation queries)
+        |-- Notification routes + Socket.io event emitters
+        v
+PostgreSQL (auto migrated schema, auto seeded demo data on first run)
+```
+
+Every write to the database that matters to another user, a new booking, a maintenance card moving columns, a transfer getting approved, also triggers a Socket.io event, so anyone else looking at a relevant screen sees it update without refreshing.
+
+<br/>
+
+## Database, Table by Table
+
+| Table | What It Holds |
+|---|---|
+| `departments` | Name, head, optional parent department, active status |
+| `categories` | Asset categories with optional category specific fields stored as JSON |
+| `employees` | Name, email, password hash, department, role, status |
+| `assets` | Tag, name, category, serial number, acquisition details, condition, location, bookable flag, current lifecycle status |
+| `allocations` | Which employee or department currently holds which asset, expected return date, return condition notes |
+| `transfers` | Requested, approved, and reallocated state for moving an asset between holders |
+| `resources` | Bookable resources like rooms, vehicles, and equipment |
+| `bookings` | Resource, booker, start and end time, status |
+| `maintenance_requests` | Asset, issue description, priority, current pipeline stage, assigned technician |
+| `audit_cycles` | Scope, date range, status, assigned auditors |
+| `audit_items` | Individual asset verification result within a cycle |
+| `activity_log` | Every meaningful action across the system, with who did it and when |
+| `notifications` | Feed entries tied to the events above, read or unread |
+
+The schema builds itself the first time the server starts, using `CREATE TABLE IF NOT EXISTS` for every table above, and seeds a small set of demo departments, categories, employees, and assets if the database is empty, so a fresh clone is never sitting there with zero data to demo against.
+
+<br/>
+
+## Realtime Layer
+
+Socket.io runs alongside the Express server and handles the events that genuinely need to be instant rather than waiting on a page refresh.
+
+| Event | Fired When |
+|---|---|
+| `booking:created` | A new resource booking is confirmed |
+| `booking:cancelled` | An existing booking is cancelled |
+| `maintenance:status-changed` | A maintenance card moves to a new kanban column |
+| `notification:new` | Any action that generates a notification, allocation, approval, overdue flag, audit discrepancy |
+| `dashboard:activity` | Feeds the live Recent Activity list on the dashboard |
+
+<br/>
+
+## Folder Structure
 
 ```
 assetflow/
-├── client/                 # React + Vite + Tailwind
-│   ├── src/
-│   │   ├── pages/           # one folder per screen (Dashboard, Assets, Booking...)
-│   │   ├── components/
-│   │   ├── context/          # auth context, socket context
-│   │   └── api/               # axios calls, grouped by module
-│
-├── server/
-│   ├── db/
-│   │   ├── schema.sql        # CREATE TABLE IF NOT EXISTS for everything
-│   │   ├── seed.sql          # demo departments/categories/assets
-│   │   └── init.js           # runs schema + seed automatically on server start
-│   ├── routes/
-│   ├── controllers/
-│   └── sockets/               # booking, maintenance, notification events
-│
-├── .env.example
-└── README.md
+  client/
+    src/
+      pages/          one folder per screen: Dashboard, Assets, Booking, Maintenance, Audit, Reports...
+      components/     shared UI pieces, buttons, cards, status pills
+      context/         auth context, socket context
+      api/              axios calls grouped by module
+  server/
+    db/
+      schema.sql        every table, CREATE TABLE IF NOT EXISTS
+      seed.sql           demo departments, categories, employees, assets
+      init.js             runs schema and seed automatically on server start
+    routes/
+    controllers/
+    sockets/              booking, maintenance, and notification event emitters
+  assets/
+    logo-animated.svg      the animated logo at the top of this file
+  .env.example
+  README.md
 ```
 
-We kept it a plain monorepo, no Docker, no ORM magic — partly because it's faster to explain to judges in 90 seconds, and partly because none of us wanted to debug a Docker network issue at 3am mid-hackathon.
+<br/>
 
----
+## Running This on Your Own Machine
 
-## screens
-
-> *(drop your actual screenshots or a short screen-recording GIF here before submission — this is the one section judges actually look at first)*
-
-```
-[ Login ]  →  [ Dashboard ]  →  [ Organization Setup ]  →  [ Asset Registry ]
-     →  [ Allocation & Transfer ]  →  [ Resource Booking ]  →  [ Maintenance Kanban ]
-     →  [ Audit Cycles ]  →  [ Reports & Analytics ]  →  [ Notifications ]
-```
-
-Every screen follows the same visual language — Odoo's purple (`#714B67`) as the accent, white everywhere else, status pills color-coded instead of buried in text.
-
----
-
-## running it yourself
-
-You genuinely don't need to touch Postgres by hand. Clone it, point it at a database, run it — the schema and demo data build themselves the first time the server starts.
+You do not need to open pgAdmin or write any SQL by hand. Clone it, point it at a Postgres database, run the server, and the schema plus demo data build themselves.
 
 ```bash
 git clone https://github.com/PDA-DP-Shop/assetflow.git
 cd assetflow
 
-# backend
 cd server
 npm install
-cp .env.example .env        # set your own DATABASE_URL inside
-npm run dev                 # tables + demo data auto-create here, watch the terminal log
+cp .env.example .env
+npm run dev
+```
 
-# frontend, in a second terminal
+Watch the terminal, you should see the schema get created and demo data get seeded automatically. Then in a second terminal:
+
+```bash
 cd client
 npm install
 npm run dev
 ```
 
-Open `http://localhost:5173`, log in with the seeded demo admin account (check `seed.sql` for the exact credentials), and you're looking at a fully populated system — departments, categories, a handful of assets, a couple of bookings — no manual setup, no empty screens.
+Open `http://localhost:5173`, log in with the demo admin account listed in `seed.sql`, and every screen is already populated with realistic data, no empty states to explain around during a demo.
 
----
+<br/>
 
-## the double-allocation block (our favorite part)
+## Environment Variables
 
-This is the one rule in the whole brief that actually makes the system feel "real" instead of "form with a database behind it," so it's worth calling out on its own.
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | Full PostgreSQL connection string |
+| `JWT_SECRET` | Secret used to sign and verify auth tokens |
+| `PORT` | Port the Express server runs on |
+| `CLIENT_URL` | Frontend origin, used for CORS and Socket.io configuration |
 
-Priya has Laptop AF-0114 allocated to her. Someone else — say Raj — tries to allocate the exact same laptop to himself. Instead of silently overwriting Priya's record (which is what a naive CRUD form would do), AssetFlow:
+<br/>
 
-1. checks the asset's current status server-side before allowing the allocation
-2. rejects it with a 409 and tells Raj exactly who currently holds it
-3. swaps the "Allocate" button for a "Submit Transfer Request" flow instead
+## API, the Short Version
 
-The transfer then has to go through an actual approval step (Asset Manager or Department Head) before the history updates and the asset moves to Raj. Same logic applies to resource bookings — overlapping time slots get rejected the same way, at the database query level, not just in the UI.
-
----
-
-## team
-
-Team Codinity built this end to end during the hackathon window — schema, backend, frontend, and the realtime layer, split by module so everyone owned a full vertical slice instead of stepping on each other's files.
-
-| | Name | Role |
+| Method | Endpoint | Purpose |
 |---|---|---|
-| 🧭 | **Devansh** | Lead — auth, dashboard, organization setup, integration |
-| 🧩 | **Rudra Modi** | Asset registry, allocation & transfer |
-| ⏱️ | **Udit Rana** | Resource booking, maintenance kanban, realtime layer |
-| 📋 | **Mit Prajapati** | Audit cycles, reports & analytics, notifications |
+| POST | `/api/auth/signup` | Create an Employee account |
+| POST | `/api/auth/login` | Log in, returns a JWT |
+| GET | `/api/dashboard/summary` | KPI numbers for the dashboard |
+| GET | `/api/assets` | List and filter assets |
+| POST | `/api/assets` | Register a new asset |
+| POST | `/api/allocations` | Allocate an asset, blocked if already held |
+| POST | `/api/allocations/:id/return` | Return an asset with condition notes |
+| POST | `/api/bookings` | Book a resource, blocked if overlapping |
+| POST | `/api/maintenance-requests` | Raise a maintenance request |
+| PATCH | `/api/maintenance-requests/:id/status` | Move a request through the approval pipeline |
+| POST | `/api/audits` | Create an audit cycle |
+| PATCH | `/api/audits/:id/close` | Lock a cycle and update missing asset statuses |
+| GET | `/api/reports/utilization` | Department wise utilization data |
 
----
+<br/>
 
-## what we'd add with more time
+## Screens
 
-Being honest about this instead of pretending it's finished:
+Screenshots or a short screen recording should go here before this gets submitted, this is usually the first thing anyone actually looks at.
 
-- QR-code scanning for asset check-in/out instead of manual search
-- email notifications alongside the in-app ones (Nodemailer's already in our other projects, just didn't fit in 8 hours)
-- proper role-based UI hiding, not just route guards
-- mobile-responsive pass — this was built desktop-first for the demo
+```
+Login  ->  Dashboard  ->  Organization Setup  ->  Asset Registry
+   ->  Allocation and Transfer  ->  Resource Booking  ->  Maintenance
+   ->  Audit  ->  Reports  ->  Notifications
+```
 
----
+Every screen shares the same visual language, Odoo's purple at `#714B67` used for accents, headers, and primary buttons, white everywhere else, and status shown as colored pills rather than buried in plain text.
 
-## license
+<br/>
 
-MIT — built for the Odoo Hackathon 2026, use whatever's useful out of it.
+## Team Codinity
+
+| | Name | What They Built |
+|---|---|---|
+| 🧭 | **Devansh** | Lead. Authentication, dashboard, organization setup, and final integration across every module |
+| 🧩 | **Rudra Modi** | Asset registration and directory, allocation and transfer, including the double allocation block |
+| ⏱️ | **Udit Rana** | Resource booking with overlap validation, maintenance kanban, and the Socket.io realtime layer |
+| 📋 | **Mit Prajapati** | Audit cycles, reports and analytics, and the activity log and notifications screen |
+
+<br/>
+
+## What We Struggled With
+
+Being straightforward about this instead of pretending the whole thing went smoothly. The booking overlap check took longer than expected to get right, our first version only checked if the new start time fell inside an existing booking, which missed cases where the new booking fully surrounded an old one. Rewriting it as a proper range overlap comparison fixed it.
+
+The maintenance kanban's drag and drop also ate more time than planned since we used native HTML5 drag events instead of a library, which is lighter but needed more manual handling for the visual feedback while dragging.
+
+<br/>
+
+## What We'd Add With More Time
+
+QR code scanning for asset check in and check out instead of manual search. Email notifications alongside the in app ones. Properly hiding UI elements based on role rather than only guarding routes. A real mobile responsive pass, since this was built desktop first for the demo. Bulk asset import from a spreadsheet for onboarding an organization's existing inventory in one go.
+
+<br/>
+
+## FAQ
+
+**Does this touch purchasing or accounting at all?**
+No, that was explicitly out of scope in the brief. Acquisition cost is stored purely for reporting and ranking, it's not connected to any accounting logic.
+
+**Can an employee promote themselves to Admin?**
+No. Signup only ever creates a plain Employee account, and role promotion only happens from the Employee Directory in Organization Setup, by someone who is already an Admin.
+
+**What happens if two people try to book the same room at the exact same time?**
+Whichever request reaches the server first gets the slot, the second request is rejected with a clear message explaining the conflict, checked at the database level, not just in the interface.
+
+**Does the database need to be set up manually?**
+No. The schema and demo data build themselves automatically the first time the server starts.
+
+<br/>
+
+## License
+
+MIT. Built for the Odoo Hackathon 2026, use whatever's useful out of it.
+
+<br/>
 
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=waving&color=714B67&height=120&section=footer" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=FFFFFF&height=140&section=footer" width="100%"/>
+<br/>
+<sub>Built with more coffee than sleep by Team Codinity</sub>
 </div>
