@@ -180,7 +180,6 @@ export default function AuditsPage() {
         <div className="flex items-center gap-2">
           <select
             value={selectedCycleId}
-            onChange={e => setSelectedResourceId(e.target.value) /* Wait, typo in standard handler, let's use setSelectedCycleId */}
             onChange={e => setSelectedCycleId(e.target.value)}
             className="bg-white border border-violet-200 rounded-xl px-3 py-2 text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-violet-400/50 shadow-sm"
           >

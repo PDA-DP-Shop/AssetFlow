@@ -298,11 +298,11 @@ router.patch('/audits/:id', async (req, res) => {
     `;
     const result = await db.query(updateQuery, [status, id]);
     return res.status(200).json({
-      message: \`Audit cycle status updated to \${status}.\`,
+      message: `Audit cycle status updated to ${status}.`,
       cycle: result.rows[0]
     });
   } catch (err) {
-    console.error(\`[PATCH /api/audits/\${id}]\`, err.message);
+    console.error(`[PATCH /api/audits/${id}]`, err.message);
     return res.status(500).json({ error: 'Server error updating audit cycle status.', details: err.message });
   }
 });
