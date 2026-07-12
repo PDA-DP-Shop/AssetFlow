@@ -66,9 +66,23 @@ function RegisterAssetModal({ onClose, onRegistered }) {
   const [form, setForm] = useState({ name: '', serial_number: '', category_id: '', department_id: '', acquisition_cost: '', condition: 'New', location: '', is_bookable: false });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+  const [departments, setDepartments] = useState([]);
 
   const categories  = [{ id: 1, name: 'Computing' }, { id: 2, name: 'Mobile Devices' }, { id: 3, name: 'Networking' }, { id: 4, name: 'Displays' }, { id: 5, name: 'Furniture' }];
-  const departments = [{ id: 1, name: 'Engineering' }, { id: 2, name: 'IT Operations' }, { id: 3, name: 'Design' }, { id: 4, name: 'Sales' }, { id: 5, name: 'Operations' }];
+
+  useEffect(() => {
+    const loadDepts = async () => {
+      try {
+        const res = await fetch('/api/departments', { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const data = await res.json();
+          setDepartments((data.departments || []).filter(d => d.is_active));
+        }
+      } catch (err) { console.warn(err.message); }
+    };
+    loadDepts();
+  }, [token]);
+
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleSubmit = async (e) => {
@@ -383,11 +397,11 @@ function AssetDetailModal({ assetId, onClose }) {
 // ── Main AssetsPage ────────────────────────────────────────────────────────────
 const STATUSES    = ['Available', 'Allocated', 'Reserved', 'Under Maintenance', 'Lost', 'Retired', 'Disposed'];
 const CATEGORIES  = ['Computing', 'Mobile Devices', 'Networking', 'Displays', 'Furniture'];
-const DEPARTMENTS = ['Engineering', 'IT Operations', 'Design', 'Sales', 'Operations'];
 
 export default function AssetsPage() {
   const { token } = useAuth();
   const [assets, setAssets]         = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState('');
   const [search, setSearch]         = useState('');
@@ -403,6 +417,20 @@ export default function AssetsPage() {
     return () => clearTimeout(t);
   }, [search]);
 
+  // Load active departments list dynamically
+  useEffect(() => {
+    const loadDepts = async () => {
+      try {
+        const res = await fetch('/api/departments', { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const data = await res.json();
+          setDepartments(data.departments || []);
+        }
+      } catch (err) { console.warn(err.message); }
+    };
+    loadDepts();
+  }, [token]);
+
   const fetchAssets = useCallback(async () => {
     setLoading(true); setError('');
     try {
@@ -410,14 +438,17 @@ export default function AssetsPage() {
       if (debouncedSearch) params.set('search', debouncedSearch);
       if (catFilter)       params.set('category', CATEGORIES.indexOf(catFilter) + 1);
       if (statFilter)      params.set('status', statFilter);
-      if (deptFilter)      params.set('department', DEPARTMENTS.indexOf(deptFilter) + 1);
+      if (deptFilter) {
+        const selectedDeptObj = departments.find(d => d.name === deptFilter);
+        if (selectedDeptObj) params.set('department', selectedDeptObj.id);
+      }
       const res  = await fetch(`/api/assets?${params}`, { headers: { Authorization: `Bearer ${token}` } });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load assets.');
       setAssets(data.assets || []);
     } catch (err) { setError(err.message); }
     finally { setLoading(false); }
-  }, [debouncedSearch, catFilter, statFilter, deptFilter, token]);
+  }, [debouncedSearch, catFilter, statFilter, deptFilter, departments, token]);
 
   useEffect(() => { fetchAssets(); }, [fetchAssets]);
 
@@ -474,7 +505,7 @@ export default function AssetsPage() {
           </span>
           <FilterPill label="Category"   value={catFilter}  options={CATEGORIES}  onChange={setCatFilter}  onClear={() => setCatFilter('')}  />
           <FilterPill label="Status"     value={statFilter} options={STATUSES}     onChange={setStatFilter} onClear={() => setStatFilter('')} />
-          <FilterPill label="Department" value={deptFilter} options={DEPARTMENTS}  onChange={setDeptFilter} onClear={() => setDeptFilter('')} />
+          <FilterPill label="Department" value={deptFilter} options={departments.filter(d => d.is_active).map(d => d.name)}  onChange={setDeptFilter} onClear={() => setDeptFilter('')} />
           {activeFilterCount > 0 && (
             <button onClick={() => { setCatFilter(''); setStatFilter(''); setDeptFilter(''); }}
               className="text-xs text-slate-400 hover:text-rose-500 flex items-center gap-1 transition-colors bg-transparent border-0 cursor-pointer">

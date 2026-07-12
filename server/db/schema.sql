@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS departments (
     name VARCHAR(100) UNIQUE NOT NULL,
     code VARCHAR(20) UNIQUE NOT NULL,
     manager VARCHAR(100),
+    parent_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+    is_active BOOLEAN DEFAULT true,
+    manager_id INTEGER, -- foreign key constraint added after users table exists
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -28,6 +31,10 @@ CREATE TABLE IF NOT EXISTS users (
     department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Add foreign key constraint to departments for manager_id after users table exists
+ALTER TABLE departments DROP CONSTRAINT IF EXISTS fk_departments_manager;
+ALTER TABLE departments ADD CONSTRAINT fk_departments_manager FOREIGN KEY (manager_id) REFERENCES users(id) ON DELETE SET NULL;
 
 -- Create ENUM type for asset status if not exists
 DO $$

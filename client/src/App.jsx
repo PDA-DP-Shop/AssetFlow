@@ -6,6 +6,7 @@ import AssetsPage from './pages/AssetsPage.jsx';
 import BookingsPage from './pages/BookingsPage.jsx';
 import AuditsPage from './pages/AuditsPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
+import OrgSetupPage from './pages/OrgSetupPage.jsx';
 import { 
   Shield, Layers, Users, Box, AlertTriangle,
   CheckCircle2, Bell, Activity, Cpu, Clock,
@@ -58,6 +59,7 @@ export default function App() {
     { key: 'assets',    icon: <Box className="w-5 h-5" />,    label: 'Asset Ledger'        },
     { key: 'bookings',  icon: <CalendarDays className="w-5 h-5" />, label: 'Resource Booking' },
     { key: 'audits',    icon: <Shield className="w-5 h-5" />, label: 'Compliance Audits'   },
+    { key: 'orgsetup',  icon: <Users className="w-5 h-5" />,  label: 'Organization Setup'  },
   ];
 
   return (
@@ -158,6 +160,9 @@ export default function App() {
 
           {/* ── AUDITS ── */}
           {activeTab === 'audits' && <AuditsPage />}
+
+          {/* ── ORG SETUP ── */}
+          {activeTab === 'orgsetup' && <OrgSetupPage />}
         </section>
       </main>
 

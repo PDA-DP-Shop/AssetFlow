@@ -15,6 +15,7 @@ const bookingRoutes  = require('./routes/bookingRoutes');
 const auditRoutes    = require('./routes/auditRoutes');
 const resourceRoutes = require('./routes/resourceRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const departmentRoutes = require('./routes/departmentRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -53,9 +54,10 @@ io.on('connection', (socket) => {
 app.use('/api/auth',      authRoutes);
 app.use('/api/assets',    assetRoutes);
 app.use('/api/bookings',  bookingRoutes);
-app.use('/api/resources', resourceRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api',           auditRoutes);
+app.use('/api/resources',   resourceRoutes);
+app.use('/api/dashboard',   dashboardRoutes);
+app.use('/api/departments', departmentRoutes);
+app.use('/api',             auditRoutes);
 
 app.get('/api/health', async (req, res) => {
   try {
