@@ -21,6 +21,7 @@ const maintenanceRoutes = require('./routes/maintenanceRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const transferRoutes = require('./routes/transferRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -67,6 +68,7 @@ app.use('/api/maintenance-requests', maintenanceRoutes);
 app.use('/api/reports',              reportRoutes);
 app.use('/api/categories',           categoryRoutes);
 app.use('/api/employees',            employeeRoutes);
+app.use('/api/transfers',            transferRoutes);
 app.use('/api',                      auditRoutes);
 
 app.get('/api/health', async (req, res) => {

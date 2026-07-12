@@ -7,6 +7,7 @@ import BookingsPage from './pages/BookingsPage.jsx';
 import AuditsPage from './pages/AuditsPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import OrgSetupPage from './pages/OrgSetupPage.jsx';
+import AllocationsPage from './pages/AllocationsPage.jsx';
 import { 
   Shield, Layers, Users, Box, AlertTriangle,
   CheckCircle2, Bell, Activity, Cpu, Clock,
@@ -59,6 +60,7 @@ export default function App() {
     { key: 'assets',    icon: <Box className="w-5 h-5" />,    label: 'Asset Ledger'        },
     { key: 'bookings',  icon: <CalendarDays className="w-5 h-5" />, label: 'Resource Booking' },
     { key: 'audits',    icon: <Shield className="w-5 h-5" />, label: 'Compliance Audits'   },
+    { key: 'allocations', icon: <ArrowRightLeft className="w-5 h-5" />, label: 'Allocations & Transfers' },
     { key: 'orgsetup',  icon: <Users className="w-5 h-5" />,  label: 'Organization Setup'  },
   ];
 
@@ -160,6 +162,9 @@ export default function App() {
 
           {/* ── AUDITS ── */}
           {activeTab === 'audits' && <AuditsPage />}
+
+          {/* ── ALLOCATIONS ── */}
+          {activeTab === 'allocations' && <AllocationsPage />}
 
           {/* ── ORG SETUP ── */}
           {activeTab === 'orgsetup' && <OrgSetupPage />}
