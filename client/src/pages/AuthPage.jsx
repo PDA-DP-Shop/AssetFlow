@@ -114,8 +114,8 @@ export default function AuthPage({ onSuccess }) {
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="relative mb-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-300/50">
-                <span className="text-white text-xl font-bold font-display tracking-tight">AF</span>
+              <div className="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center shadow-lg shadow-violet-300/50 bg-white border border-violet-100">
+                <img src="/logo.png" alt="AssetFlow Logo" className="w-full h-full object-cover" />
               </div>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-violet-900 font-display">
